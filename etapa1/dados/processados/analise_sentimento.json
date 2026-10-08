@@ -1,0 +1,291 @@
+{
+  "distribuicao": {
+    "positivo": 641,
+    "negativo": 299,
+    "neutro": 39
+  },
+  "media_geral": 0.2842,
+  "por_ferramenta": {
+    "Claude": {
+      "mencoes": 305,
+      "media": 0.1467,
+      "positivos": 176,
+      "negativos": 118,
+      "neutros": 11
+    },
+    "ChatGPT": {
+      "mencoes": 302,
+      "media": 0.2484,
+      "positivos": 188,
+      "negativos": 95,
+      "neutros": 19
+    },
+    "GitHub Copilot": {
+      "mencoes": 169,
+      "media": 0.1238,
+      "positivos": 93,
+      "negativos": 70,
+      "neutros": 6
+    },
+    "Gemini": {
+      "mencoes": 55,
+      "media": 0.3207,
+      "positivos": 36,
+      "negativos": 16,
+      "neutros": 3
+    },
+    "Codeium": {
+      "mencoes": 45,
+      "media": 0.6721,
+      "positivos": 43,
+      "negativos": 2,
+      "neutros": 0
+    },
+    "Ollama": {
+      "mencoes": 40,
+      "media": 0.5577,
+      "positivos": 31,
+      "negativos": 7,
+      "neutros": 2
+    },
+    "Cursor": {
+      "mencoes": 40,
+      "media": 0.4912,
+      "positivos": 31,
+      "negativos": 7,
+      "neutros": 2
+    }
+  },
+  "linha_tempo": {
+    "2023-02": {
+      "media": 0.4101,
+      "volume": 5
+    },
+    "2023-03": {
+      "media": -0.2942,
+      "volume": 5
+    },
+    "2023-04": {
+      "media": -0.1013,
+      "volume": 4
+    },
+    "2023-05": {
+      "media": 0.428,
+      "volume": 11
+    },
+    "2023-06": {
+      "media": 0.7673,
+      "volume": 5
+    },
+    "2023-07": {
+      "media": 0.0117,
+      "volume": 5
+    },
+    "2023-08": {
+      "media": 0.2155,
+      "volume": 3
+    },
+    "2023-09": {
+      "media": 0.9119,
+      "volume": 3
+    },
+    "2023-10": {
+      "media": -0.2485,
+      "volume": 6
+    },
+    "2023-11": {
+      "media": 0.6206,
+      "volume": 4
+    },
+    "2023-12": {
+      "media": 0.9515,
+      "volume": 3
+    },
+    "2024-01": {
+      "media": 0.5098,
+      "volume": 10
+    },
+    "2024-02": {
+      "media": 0.6522,
+      "volume": 5
+    },
+    "2024-03": {
+      "media": 0.5338,
+      "volume": 6
+    },
+    "2024-04": {
+      "media": 0.3391,
+      "volume": 8
+    },
+    "2024-05": {
+      "media": 0.3159,
+      "volume": 5
+    },
+    "2024-06": {
+      "media": -0.6352,
+      "volume": 10
+    },
+    "2024-07": {
+      "media": 0.5565,
+      "volume": 6
+    },
+    "2024-08": {
+      "media": 0.7051,
+      "volume": 4
+    },
+    "2024-09": {
+      "media": -0.2335,
+      "volume": 5
+    },
+    "2024-10": {
+      "media": -0.2512,
+      "volume": 24
+    },
+    "2024-11": {
+      "media": 0.6181,
+      "volume": 14
+    },
+    "2024-12": {
+      "media": 0.3549,
+      "volume": 16
+    },
+    "2025-01": {
+      "media": 0.4354,
+      "volume": 13
+    },
+    "2025-02": {
+      "media": 0.5914,
+      "volume": 13
+    },
+    "2025-03": {
+      "media": 0.326,
+      "volume": 15
+    },
+    "2025-04": {
+      "media": 0.5461,
+      "volume": 21
+    },
+    "2025-05": {
+      "media": 0.2473,
+      "volume": 7
+    },
+    "2025-06": {
+      "media": 0.2717,
+      "volume": 11
+    },
+    "2025-07": {
+      "media": 0.7614,
+      "volume": 20
+    },
+    "2025-08": {
+      "media": 0.3556,
+      "volume": 16
+    },
+    "2025-09": {
+      "media": 0.2092,
+      "volume": 6
+    },
+    "2025-10": {
+      "media": 0.4532,
+      "volume": 10
+    },
+    "2025-11": {
+      "media": 0.5024,
+      "volume": 21
+    },
+    "2025-12": {
+      "media": 0.554,
+      "volume": 20
+    },
+    "2026-01": {
+      "media": 0.3465,
+      "volume": 18
+    },
+    "2026-02": {
+      "media": 0.27,
+      "volume": 34
+    },
+    "2026-03": {
+      "media": 0.3589,
+      "volume": 51
+    },
+    "2026-04": {
+      "media": 0.5114,
+      "volume": 70
+    },
+    "2026-05": {
+      "media": -0.0351,
+      "volume": 87
+    },
+    "2026-06": {
+      "media": 0.3798,
+      "volume": 67
+    },
+    "2026-07": {
+      "media": 0.1081,
+      "volume": 82
+    },
+    "2026-08": {
+      "media": 0.1172,
+      "volume": 74
+    },
+    "2026-09": {
+      "media": 0.3256,
+      "volume": 149
+    }
+  },
+  "exemplos_negativos": [
+    {
+      "nota": -0.949,
+      "texto": "The emotional and financial cost of real data loss is severe, yet the testing problem is invisible there is no prompt, no error, and no failure signal until the backup is needed.",
+      "repositorio": "muaddibco/RealWorldProblems"
+    },
+    {
+      "nota": -0.9,
+      "texto": "Streamline - architecture Unify Error Handling Between REST and GraphQL Problem Statement Inconsistent REST vs GraphQL error shapes; missing taxonomy of error codes.",
+      "repositorio": "PalisadoesFoundation/talawa-api"
+    },
+    {
+      "nota": -0.9,
+      "texto": "Pain / stakes: Last-minute conflicts cause missed school events (guilt child disappointment), rushed childcare arrangements, and workplace embarrassment when a parent has to abruptly cancel a meeting.",
+      "repositorio": "muaddibco/RealWorldProblems"
+    },
+    {
+      "nota": -0.896,
+      "texto": "fix(ingestion): Riverside data quality remediation cleanup, re-extract, and strict validation Parent: Problem Riverside data quality is severely degraded due to a series of failed reingest attempts ( , ).",
+      "repositorio": "judgemind/judgemind"
+    },
+    {
+      "nota": -0.886,
+      "texto": "Event block Create 2 blocks an event block and an attach event block The event block would be a list of CC events you can attach to.",
+      "repositorio": "mtryoutlander/CC-VisualCodeing"
+    }
+  ],
+  "exemplos_positivos": [
+    {
+      "nota": 0.946,
+      "texto": "Bounded source section ( Task 4: Define Event Authority, Projections, and Lifecycle): Files: Create: Create: Create: Create: Create: Create: Create: Create: Create: Create: Interfaces: Produces: , , , and .",
+      "repositorio": "kburson/ai-task-manager"
+    },
+    {
+      "nota": 0.923,
+      "texto": "Post-task attestation After a successful collaboration, record the outcome as a signed attestation edge: This builds the trust graph organically agents that consistently deliver good outcomes accumulate verifiable trust.",
+      "repositorio": "microsoft/autogen"
+    },
+    {
+      "nota": 0.917,
+      "texto": "What Success Looks Like A successful submission will fulfill all requirements in the following stages.",
+      "repositorio": "tenstorrent/tt-metal"
+    },
+    {
+      "nota": 0.893,
+      "texto": "Bounded source section ( Task 5: Add Provider-Neutral Identity and Claim Recovery): Files: Create: Create: Create: Create: Create: Create: Create: Interfaces: Produces: , , , , and .",
+      "repositorio": "kburson/ai-task-manager"
+    },
+    {
+      "nota": 0.893,
+      "texto": "Bounded source section ( Task 3: Implement Repository, Path, and Atomic-Write Boundaries): Files: Create: Create: Create: Create: Create: Create: Create: Interfaces: Produces: , , , , , and .",
+      "repositorio": "kburson/ai-task-manager"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# DevIA Radar - Etapa 1
+# Instalacao:
+#   pip install -r requirements.txt
+#   python -m spacy download en_core_web_sm
+
+requests>=2.32          # requisicoes HTTP para a GitHub Search API
+spacy>=3.8              # PLN: tokenizacao, lematizacao, POS, NER
+nltk>=3.9               # VADER, analise de sentimento por lexico
+matplotlib>=3.9         # graficos
+wordcloud>=1.9          # nuvem de palavras

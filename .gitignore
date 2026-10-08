@@ -1,0 +1,16 @@
+# Material de preparo da apresentação: fica só no computador da dupla
+guia-apresentacao/
+docs/guia-augusto.md
+docs/guia-pedro.md
+docs/roteiro-apresentacao.md
+
+# Fontes editáveis. O que vai para o professor são os PDFs
+etapa1-devia-radar.pptx
+docs/pergunta-de-pesquisa.html
+~$*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
