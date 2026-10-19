@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Atividade Regex</title>
+<style>
+  @page { size: A4; margin: 2.5cm; }
+  body { font-family: "Calibri", Arial, sans-serif; font-size: 12pt; line-height: 1.5; color: #000; background: #fff; }
+  h1 { font-size: 14pt; text-align: center; margin: 0 0 4px 0; }
+  .info { text-align: center; margin: 0 0 24px 0; }
+  h2 { font-size: 12pt; margin: 20px 0 6px 0; }
+  p { margin: 0 0 8px 0; text-align: justify; }
+  pre { font-family: Consolas, monospace; font-size: 10pt; background: #f3f3f3; border: 1px solid #ddd; padding: 8px 10px; margin: 0 0 8px 0; white-space: pre-wrap; }
+  .saida { font-size: 11pt; }
+  .exercicio { break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>Atividade: Expressões Regulares com o módulo re</h1>
+<p class="info">Dados Não Estruturados · Augusto Blois</p>
+
+<div class="exercicio">
+<h2>Exercício 1: Extrair datas em múltiplos formatos</h2>
+<pre>import re
+
+texto = "As reuniões serão em 12/03/2024, 15-04-2025 e 22.05.2023."
+padrao = r'\b\d{2}[/.-]\d{2}[/.-]\d{4}\b'
+
+datas = re.findall(padrao, texto)
+print(datas)</pre>
+<p class="saida"><b>Saída:</b> <code>['12/03/2024', '15-04-2025', '22.05.2023']</code></p>
+<p>O padrão procura 2 dígitos, um separador, 2 dígitos, outro separador e 4 dígitos. O <code>[/.-]</code> aceita barra, ponto ou hífen como separador, e o <code>\b</code> garante que a data não está colada em outro número.</p>
+</div>
+
+<div class="exercicio">
+<h2>Exercício 2: Validar números de telefone brasileiros</h2>
+<pre>import re
+
+texto = "Ligue para (83) 98888-7777 ou 11999998888 ou (11)3777-8888."
+padrao = r'\(?\d{2}\)?\s?\d{4,5}-?\d{4}'
+
+telefones = re.findall(padrao, texto)
+print(telefones)</pre>
+<p class="saida"><b>Saída:</b> <code>['(83) 98888-7777', '11999998888', '(11)3777-8888']</code></p>
+<p>O <code>?</code> deixa os parênteses, o espaço e o hífen opcionais, então o mesmo padrão pega o número formatado e o sem formatação. O <code>\d{4,5}</code> aceita tanto celular (5 dígitos) quanto fixo (4 dígitos).</p>
+</div>
+
+<div class="exercicio">
+<h2>Exercício 3: Extrair URLs de um texto</h2>
+<pre>import re
+
+texto = "Acesse https://ufpb.br ou www.google.com ou http://example.org/teste."
+padrao = r'(?:https?://|www\.)\S*[^\s.,;!?]'
+
+urls = re.findall(padrao, texto)
+print(urls)</pre>
+<p class="saida"><b>Saída:</b> <code>['https://ufpb.br', 'www.google.com', 'http://example.org/teste']</code></p>
+<p>A URL começa com <code>http://</code>, <code>https://</code> ou <code>www.</code> e segue até o próximo espaço. O último trecho <code>[^\s.,;!?]</code> obriga a URL a terminar em um caractere que não seja pontuação, senão o ponto final da frase entraria junto (ficaria <code>teste.</code>).</p>
+</div>
+
+<div class="exercicio">
+<h2>Exercício 4: Detectar palavras repetidas</h2>
+<pre>import re
+
+texto = "Isso é muito muito importante e o o aluno precisa corrigir."
+padrao = r'\b(\w+)\s+\1\b'
+
+repeticoes = [m.group() for m in re.finditer(padrao, texto)]
+print(repeticoes)</pre>
+<p class="saida"><b>Saída:</b> <code>['muito muito', 'o o']</code></p>
+<p>O grupo <code>(\w+)</code> captura uma palavra e o <code>\1</code> exige que a mesma palavra apareça de novo logo depois. Usei <code>finditer</code> no lugar de <code>findall</code> porque, quando o padrão tem grupo, o <code>findall</code> devolve só o grupo (<code>'muito'</code>), e o <code>m.group()</code> devolve o trecho inteiro (<code>'muito muito'</code>).</p>
+</div>
+
+<div class="exercicio">
+<h2>Exercício 5: Remover hashtags e menções</h2>
+<pre>import re
+
+texto = "Amei o evento! #UFPB @usuario #Python"
+padrao = r'[#@]\w+\s*'
+
+texto_limpo = re.sub(padrao, '', texto)
+print(repr(texto_limpo))</pre>
+<p class="saida"><b>Saída:</b> <code>'Amei o evento! '</code></p>
+<p>O <code>[#@]\w+</code> pega qualquer palavra que começa com <code>#</code> ou <code>@</code>, e o <code>\s*</code> remove também o espaço depois dela, para não sobrar espaço acumulado. O <code>re.sub</code> troca tudo isso por nada. Usei <code>repr</code> só para mostrar o espaço no final, igual à saída esperada.</p>
+</div>
+
+</body>
+</html>
