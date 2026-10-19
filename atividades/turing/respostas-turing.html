@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Turing e o PLN moderno</title>
+<style>
+  @page { size: A4; margin: 2.2cm 2.3cm 2.2cm 2.3cm; }
+  body { font-family: "Georgia", "Cambria", serif; font-size: 11.2pt; line-height: 1.55; color: #1a1a1a; background: #fff; }
+  header { border-bottom: 1.5px solid #1a1a1a; padding-bottom: 10px; margin-bottom: 22px; }
+  header h1 { font-size: 18pt; margin: 0 0 6px 0; font-weight: normal; }
+  header p { margin: 2px 0; font-family: "Segoe UI", Arial, sans-serif; font-size: 9.5pt; color: #444; }
+  h2 { font-family: "Segoe UI", Arial, sans-serif; font-size: 12.5pt; margin: 26px 0 4px 0; }
+  .pergunta { font-style: italic; color: #333; margin: 0 0 12px 0; padding-left: 12px; border-left: 3px solid #999; }
+  p { margin: 0 0 10px 0; text-align: justify; hyphens: auto; }
+  blockquote { margin: 10px 24px; font-size: 10.4pt; color: #333; }
+  ul { margin: 0 0 10px 0; padding-left: 22px; }
+  li { margin-bottom: 5px; text-align: justify; }
+  .refs { margin-top: 28px; border-top: 1px solid #bbb; padding-top: 8px; }
+  .refs h2 { margin-top: 6px; }
+  .refs p { font-size: 9.6pt; text-align: left; padding-left: 18px; text-indent: -18px; margin-bottom: 5px; }
+  h2, .pergunta { break-after: avoid; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Turing (1950) e o Processamento de Linguagem Natural hoje</h1>
+  <p>Disciplina: Dados Não Estruturados · Aluno: Augusto Blois · Outubro de 2026</p>
+  <p>Texto-base: TURING, A. M. Computing Machinery and Intelligence. <i>Mind</i>, v. 59, n. 236, p. 433-460, 1950.</p>
+</header>
+
+<h2>1. O jogo da imitação e a avaliação de sistemas de PLN</h2>
+<p class="pergunta">Turing propõe o “jogo da imitação” como substituto para a pergunta “as máquinas podem pensar?”. Como essa mudança de perspectiva se relaciona com a forma como avaliamos sistemas modernos de PLN?</p>
+
+<p>Turing abre o artigo dizendo que a pergunta “as máquinas podem pensar?” depende de definir “máquina” e “pensar”, palavras vagas demais para gerar uma resposta útil. Por isso ele troca a pergunta por um teste: um interrogador conversa por escrito com dois participantes escondidos e precisa descobrir quem é quem. Se uma máquina ocupar um desses lugares e o interrogador errar com a mesma frequência com que erraria diante de um humano, a máquina passou no jogo. A mudança tem duas consequências importantes. A primeira é que o critério passa a ser o <b>comportamento observável</b> (o que a máquina responde), deixando de lado o que acontece “por dentro”. A segunda é que o teste é feito <b>só com texto</b>: Turing separa de propósito a capacidade intelectual da aparência física, da voz e do corpo. Ele chega a fazer uma previsão concreta, de que por volta do ano 2000 um interrogador médio não teria mais de 70% de chance de acertar a identificação após cinco minutos de conversa.</p>
+
+<p>Essa troca de uma pergunta filosófica por um procedimento de medição é, na prática, a forma como a área de PLN avalia seus modelos até hoje:</p>
+<ul>
+  <li><b>Benchmarks são “jogos da imitação” recortados.</b> Conjuntos como GLUE, SuperGLUE, SQuAD e MMLU não perguntam se o modelo “entende” linguagem. Eles definem uma tarefa (classificar sentimento, responder uma pergunta sobre um texto, resolver uma questão de múltipla escolha) e medem o acerto contra respostas humanas de referência. Métricas como acurácia, F1 e BLEU são exatamente esse tipo de critério operacional.</li>
+  <li><b>A avaliação humana às cegas é a herdeira mais direta do teste.</b> Em plataformas como o Chatbot Arena, pessoas comparam respostas de dois modelos sem saber qual é qual e votam na melhor. A estrutura (juiz humano, participantes ocultos, julgamento só pelo texto) é a mesma de Turing. Em 2025, um experimento de Jones e Bergen reproduziu o teste em três participantes, como no artigo original, e o GPT-4.5, instruído a assumir uma persona, foi apontado como humano em cerca de 73% das conversas.</li>
+  <li><b>A avaliação continua sendo de caixa-preta.</b> Assim como no jogo, julgamos um LLM (Large Language Model, modelo de linguagem treinado em enormes volumes de texto) pela saída que ele produz, raramente pelo mecanismo interno.</li>
+</ul>
+
+<p>A mesma escolha também explica os limites atuais. Se o critério é parecer humano ou acertar o gabarito, o modelo pode “passar” por caminhos que não queremos. Benchmarks saturam rapidamente e podem vazar para os dados de treino (contaminação), de modo que a nota alta mede memorização. Avaliadores humanos tendem a preferir respostas fluentes e confiantes mesmo quando estão erradas, e um modelo pode enganar o interrogador sendo convincente sem ser correto. Por isso a área complementa a visão de Turing com avaliações de factualidade, robustez e segurança, e com pesquisa em interpretabilidade, que tenta justamente olhar para dentro da caixa-preta. Em resumo, Turing deu à área o hábito de trocar perguntas sobre a “mente” da máquina por testes mensuráveis; o desafio de hoje é desenhar testes que um sistema não consiga vencer só pela aparência.</p>
+
+<h2>2. As objeções de Turing nos debates sobre GPT, BERT e LLaMA</h2>
+<p class="pergunta">No artigo, Turing discute objeções como a “objeção da consciência” e a “objeção do argumento da informalidade do comportamento humano”. Como essas objeções reaparecem hoje nos debates sobre modelos de linguagem como GPT, BERT ou LLaMA?</p>
+
+<p><b>A objeção da consciência.</b> Turing cita o neurocirurgião Geoffrey Jefferson, para quem nenhuma máquina se igualaria ao cérebro enquanto não escrevesse um soneto ou compusesse um concerto <i>por causa</i> de pensamentos e emoções que sentiu (Jefferson descarta a produção pelo “acaso dos símbolos”). Ou seja: produzir o texto certo não basta, seria preciso saber que o escreveu e sentir algo ao fazê-lo. A resposta de Turing é que, levada ao extremo, essa exigência leva ao solipsismo: a única forma de ter certeza de que alguém pensa seria <i>ser</i> esse alguém. Como não fazemos essa exigência com outras pessoas e adotamos a “convenção educada” de que todos pensam, ele propõe aplicar o mesmo critério à máquina. Para mostrar isso, imagina um diálogo em que a máquina defende escolhas de palavras em um soneto de Shakespeare, argumentando que um interlocutor assim dificilmente seria descartado como um mero “papagaio”.</p>
+
+<p>Esse debate voltou quase intacto com os LLMs:</p>
+<ul>
+  <li>O artigo <i>On the Dangers of Stochastic Parrots</i> (Bender et al., 2021) descreve modelos como o GPT como “papagaios estocásticos”, que juntam sequências de palavras com base em probabilidades, sem acesso ao significado. É a posição de Jefferson com vocabulário estatístico. No mesmo espírito, Bender e Koller (2020) argumentam que um sistema treinado apenas com a forma do texto não consegue aprender significado.</li>
+  <li>O argumento do Quarto Chinês, de Searle (1980), anterior aos LLMs, ganhou nova força: manipular símbolos corretamente não garantiria compreensão.</li>
+  <li>O caso de Blake Lemoine, engenheiro do Google que em 2022 afirmou que o modelo LaMDA seria senciente, mostra o outro lado: a fluência do texto convence pessoas a atribuir consciência ao sistema. É o critério comportamental de Turing funcionando, e também o risco dele.</li>
+</ul>
+<p>Hoje a discussão tem um ingrediente que Turing não tinha: sabemos como esses modelos são treinados (prever a próxima palavra ou, no caso do BERT, a palavra mascarada). Para muitos críticos, conhecer o mecanismo reforça a objeção. Para outros, a resposta de Turing continua válida: se julgamos outras mentes pelo comportamento, não haveria motivo para um critério mais rígido com máquinas. O debate segue sem consenso, e a maior parte da comunidade separa a pergunta “o modelo resolve a tarefa?” (respondível por testes) da pergunta “o modelo tem experiência subjetiva?” (que continua em aberto).</p>
+
+<p><b>O argumento da informalidade do comportamento.</b> Essa objeção diz que é impossível escrever um conjunto de regras que descreva o que uma pessoa deveria fazer em toda situação concebível. Turing dá o exemplo de uma regra simples (“pare no sinal vermelho, siga no verde”) que não diz o que fazer se as duas luzes acenderem juntas. Como o comportamento humano não cabe em regras, conclui a objeção, humanos não podem ser máquinas. Turing responde distinguindo <b>regras de conduta</b> (instruções explícitas que seguimos conscientemente) de <b>leis de comportamento</b> (as regularidades que de fato governam o que fazemos). Não ter uma lista completa das primeiras não prova que as segundas não existam. Ele acrescenta que nem uma máquina simples é fácil de prever: um pequeno programa no computador de Manchester gerava respostas que ninguém conseguiria antecipar só observando-o.</p>
+
+<p>No PLN, essa objeção ajuda a contar a história da própria área:</p>
+<ul>
+  <li><b>O fracasso das regras escritas à mão.</b> Os primeiros sistemas de PLN eram baseados em regras e gramáticas formais e esbarravam justamente na informalidade da linguagem: ironia, ambiguidade, gírias, contexto. A virada estatística, e depois a das redes neurais, trocou “escrever as regras” por “aprender os padrões a partir dos dados”. GPT, BERT e LLaMA não têm uma regra explícita para cada situação; eles aprendem algo próximo das “leis de comportamento” de Turing, codificadas em bilhões de parâmetros.</li>
+  <li><b>A objeção volta pelo lado contrário.</b> Como ninguém escreveu essas regras, também ninguém sabe exatamente quais o modelo aprendeu. Isso aparece em alucinações (respostas inventadas com segurança), em comportamentos inesperados e em jailbreaks, quando um usuário encontra uma situação que as regras de segurança do modelo não previram. É o “sinal vermelho e verde ao mesmo tempo” na versão atual.</li>
+  <li><b>O debate sobre generalização.</b> Críticos como Hubert Dreyfus, que desenvolveu essa linha de argumento, defendiam que o comportamento humano depende de contexto e de corpo. Hoje a pergunta reaparece como: os LLMs generalizam de verdade ou só interpolam o que viram? Testes em situações fora da distribuição de treino são a forma atual de investigar isso.</li>
+</ul>
+
+<h2>3. A “child machine” e as técnicas atuais de treinamento</h2>
+<p class="pergunta">Turing afirma que máquinas podem aprender, e compara esse processo ao desenvolvimento de uma criança (“child machine”). Como essa ideia se conecta com as atuais técnicas de treinamento em PLN?</p>
+
+<p>Na seção final, “Learning Machines”, Turing propõe: em vez de tentar programar diretamente uma mente adulta, por que não programar uma que simule a mente de uma criança e depois educá-la? Ele divide o problema em três partes: o estado inicial da mente (no nascimento), a educação recebida e as outras experiências. Imagina a mente infantil como um caderno recém-comprado, com “pouco mecanismo e muitas folhas em branco”. Também compara o processo com a evolução: a estrutura da máquina-criança corresponde ao material hereditário, as mudanças nela correspondem a mutações, e o julgamento do experimentador faz o papel da seleção natural. Para ensinar, sugere recompensas e punições, e observa que o professor muitas vezes não saberá o que acontece dentro da máquina, apenas conseguirá prever em parte o seu comportamento.</p>
+
+<p>Quase todos esses elementos têm um correspondente direto no treinamento de modelos de linguagem:</p>
+<ul>
+  <li><b>Arquitetura com pouco conhecimento embutido.</b> Um Transformer (a arquitetura de rede neural usada por GPT, BERT e LLaMA) começa com pesos aleatórios: estrutura definida, conteúdo vazio. É o caderno em branco de Turing. O conhecimento vem do treino, e quase nada é escrito à mão.</li>
+  <li><b>Pré-treinamento como “outras experiências”.</b> Na primeira fase, o modelo lê volumes enormes de texto e aprende a prever palavras: a próxima palavra no GPT e no LLaMA, palavras escondidas no BERT. Isso lembra a criança exposta à linguagem ao redor antes de ser ensinada formalmente.</li>
+  <li><b>Fine-tuning como “educação”.</b> Depois, o modelo é ajustado com exemplos selecionados de perguntas e boas respostas (ajuste supervisionado, ou instruction tuning). Equivale ao ensino dirigido de um professor.</li>
+  <li><b>RLHF como recompensa e punição.</b> No Reinforcement Learning from Human Feedback, pessoas avaliam respostas do modelo e essas avaliações viram um sinal de recompensa que reforça as respostas preferidas e desencoraja as ruins. É a proposta de Turing quase literal, inclusive com o problema que ele antecipou: o modelo pode aprender a agradar o avaliador sem melhorar de fato.</li>
+  <li><b>Regras que mudam.</b> Turing comenta o “paradoxo” de uma máquina que altera as próprias regras. Em redes neurais, o aprendizado consiste exatamente em atualizar os pesos a cada passo de treino (pelo algoritmo de gradiente descendente), ou seja, a “regra” que liga entrada e saída muda o tempo todo.</li>
+  <li><b>Professor que não vê por dentro.</b> A observação de que o professor ignora o funcionamento interno descreve o problema da caixa-preta dos LLMs e motiva a área de interpretabilidade.</li>
+  <li><b>Aleatoriedade e seleção.</b> Turing sugere incluir um elemento aleatório na máquina que aprende. Hoje a aleatoriedade está na inicialização dos pesos, na ordem dos dados (gradiente descendente estocástico) e na geração de texto (amostragem com temperatura). A analogia com a evolução reaparece na busca de hiperparâmetros e de arquiteturas, em que várias versões são testadas e as melhores, escolhidas.</li>
+  <li><b>Ensinar em etapas.</b> A ideia de começar simples e avançar lembra o curriculum learning, que organiza os dados do mais fácil para o mais difícil.</li>
+</ul>
+
+<p>A analogia também tem limites. Uma criança aprende a falar com uma quantidade de linguagem pequena perto dos trilhões de palavras usados para treinar um LLM, e aprende interagindo com o mundo físico e com outras pessoas, enquanto o modelo aprende quase só com texto. Turing já discutia esse ponto ao lembrar que uma máquina não teria pernas nem olhos e ao citar Helen Keller como exemplo de que a educação pode acontecer por canais limitados. Mesmo com essas diferenças, a aposta central do artigo se confirmou: os sistemas de PLN mais capazes de hoje adquiriram sua competência linguística por meio de treinamento, com muito pouco conhecimento programado à mão. Turing termina o texto dizendo que só conseguimos enxergar um pouco à frente, mas que já há muito a ser feito, e o desenvolvimento do PLN nas décadas seguintes seguiu em grande parte o caminho que ele apontou.</p>
+
+<div class="refs">
+  <h2>Referências</h2>
+  <p>BENDER, E. M.; GEBRU, T.; McMILLAN-MAJOR, A.; SHMITCHELL, S. On the Dangers of Stochastic Parrots: Can Language Models Be Too Big? In: <i>Proceedings of FAccT ’21</i>. ACM, 2021.</p>
+  <p>BENDER, E. M.; KOLLER, A. Climbing towards NLU: On Meaning, Form, and Understanding in the Age of Data. In: <i>Proceedings of ACL 2020</i>, 2020.</p>
+  <p>DREYFUS, H. L. <i>What Computers Can’t Do: A Critique of Artificial Reason</i>. New York: Harper &amp; Row, 1972.</p>
+  <p>JONES, C. R.; BERGEN, B. K. Large Language Models Pass the Turing Test. <i>arXiv</i>:2503.23674, 2025.</p>
+  <p>OUYANG, L. et al. Training language models to follow instructions with human feedback. In: <i>NeurIPS 2022</i>, 2022.</p>
+  <p>SEARLE, J. R. Minds, Brains, and Programs. <i>Behavioral and Brain Sciences</i>, v. 3, n. 3, p. 417-424, 1980.</p>
+  <p>TURING, A. M. Computing Machinery and Intelligence. <i>Mind</i>, v. 59, n. 236, p. 433-460, 1950. Disponível em: https://courses.cs.umbc.edu/471/papers/turing.pdf.</p>
+</div>
+
+</body>
+</html>
