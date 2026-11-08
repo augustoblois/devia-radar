@@ -99,7 +99,11 @@ def analisar(corpus: list[dict[str, Any]], salvar: bool = True) -> dict[str, Any
     print(f"  processando {len(textos)} documentos com spaCy...")
 
     freq_lemas: Counter[str] = Counter()
-    freq_por_pos: dict[str, Counter[str]] = {pos: Counter() for pos in config.POS_RELEVANTES}
+    # sorted(): conjunto não tem ordem fixa no Python, e sem ordenar o JSON
+    # salvo mudava de ordem a cada execução, sujando o histórico do git.
+    freq_por_pos: dict[str, Counter[str]] = {
+        pos: Counter() for pos in sorted(config.POS_RELEVANTES)
+    }
     freq_entidades: dict[str, Counter[str]] = {}
     grafias: dict[str, Counter[str]] = {}  # forma minúscula -> grafias vistas
     freq_chunks: Counter[str] = Counter()

@@ -78,6 +78,7 @@ def nuvem_de_palavras(analise_pln: dict[str, Any]) -> str | None:
         colormap="viridis",
         max_words=120,
         relative_scaling=0.45,
+        random_state=42,  # semente fixa: a mesma nuvem em toda execução
     ).generate_from_frequencies(frequencias)
 
     figura, eixo = plt.subplots(figsize=(11, 6))
