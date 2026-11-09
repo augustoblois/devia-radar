@@ -67,7 +67,7 @@ N_PALESTRAS = 8
 DURACAO_MIN = 15  # minutos: palestra relâmpago de 5 min não tem conteúdo
 DURACAO_MAX = 50  # minutos: limita o tempo de processamento
 
-# Formato baixado: AV1 em WebM. O mesmo vídeo em MP4 tem 10x o tamanho
+# Formato baixado: AV1 em WebM. O mesmo vídeo em MP4 tem 9x o tamanho
 # (1,1 GB contra 124 MB numa palestra de 50 min), com a mesma resolução.
 SUFIXO_VIDEO = ".av1.webm"
 SUFIXO_LEGENDA = ".vtt"

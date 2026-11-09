@@ -140,8 +140,8 @@ As regras da amostra, em ordem:
 3. entre 15 e 50 minutos: as 8 passam.
 
 A amostra é, portanto, a lista inteira das palestras que passam nas regras.
-O vídeo vem em AV1, um formato de compressão que deixa o arquivo 10 vezes
-menor que o MP4, com a mesma resolução. A licença é Creative Commons
+O vídeo vem em AV1, um formato de compressão que deixa o arquivo de 6 a 9
+vezes menor que o MP4, com a mesma resolução. A licença é Creative Commons
 Attribution: pode analisar e mostrar quadros, citando a fonte.
 
 ### PyAV e OpenCV (`quadros.py`)
