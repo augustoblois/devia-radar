@@ -121,6 +121,12 @@ def acao_graficos(estado: Estado) -> None:
     visualizacao.gerar_todos(estado.fala, estado.acustica, estado.episodios)
 
 
+def contexto(texto: str, padrao: re.Pattern[str], largura: int = 70) -> str:
+    """O achado com 70 caracteres de cada lado, como a KWIC da etapa 1."""
+    casamento = padrao.search(texto)
+    return texto[max(casamento.start() - largura, 0):casamento.end() + largura]
+
+
 def acao_buscar(estado: Estado) -> None:
     """
     Busca por regex na fala transcrita e toca o momento encontrado.
@@ -146,7 +152,7 @@ def acao_buscar(estado: Estado) -> None:
     for numero, achado in enumerate(achados[:12], start=1):
         minuto, segundo = divmod(int(achado["inicio"]), 60)
         print(f"\n  ({numero:>2}) [{achado['episodio']['podcast'][:30]}, {minuto}:{segundo:02d}]")
-        print(f"       ...{achado['texto'][:150]}...")
+        print(f"       ...{contexto(achado['texto'], padrao)}...")
         print(f"       casou com: {achado['casou']!r}")
     print(f"\n  {len(achados)} momentos com o padrão (mostrando {min(len(achados), 12)}).")
     if not achados:
