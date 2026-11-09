@@ -383,6 +383,19 @@ def carregar_analise() -> dict[str, Any]:
         return json.load(arquivo)
 
 
+# Como cada número aparece no terminal, em vez do nome da chave do JSON.
+ROTULOS = {
+    "episodios": "episódios",
+    "podcasts": "podcasts",
+    "horas_audio": "horas de áudio",
+    "palavras": "palavras faladas",
+    "trechos_whisper": "trechos do Whisper",
+    "frases": "frases",
+    "frases_avaliadas": "frases avaliadas pelo VADER",
+    "wpm_medio": "palavras por minuto (média)",
+}
+
+
 def imprimir(analise: dict[str, Any]) -> None:
     """Mostra o resultado no terminal, formatado para a apresentação."""
     if not analise:
@@ -392,7 +405,7 @@ def imprimir(analise: dict[str, Any]) -> None:
     print("\n  A FALA EM NÚMEROS")
     print("  " + "-" * 50)
     for chave, valor in est.items():
-        print(f"    {chave.replace('_', ' '):.<30} {valor}")
+        print(f"    {ROTULOS.get(chave, chave.replace('_', ' ')):.<30} {valor}")
 
     total_texto = sum(analise["etapa1"].get("ferramentas", {}).values()) or 1
     total_fala = sum(analise["ferramentas"]["mencoes"].values()) or 1
