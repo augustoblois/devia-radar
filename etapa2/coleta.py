@@ -140,7 +140,7 @@ def buscar_termo(termo: str) -> list[dict[str, Any]]:
     parametros = {
         "term": termo,
         "media": "podcast",
-        "entity": "podcastEpisode",  # episódio, e não o podcast inteiro
+        "entity": "podcastEpisode",  # um resultado por episódio (o padrão é um por podcast)
         "limit": config.RESULTADOS_POR_TERMO,
         "country": "US",
     }
@@ -212,7 +212,7 @@ def baixar(episodio: dict[str, Any], tentativas: int = 3) -> bool:
 
     Tenta até 3 vezes. Na primeira coleta, um episódio falhou porque o DNS
     não resolveu o servidor de anúncios por onde o link passa, e na segunda
-    tentativa baixou normalmente: era instabilidade de rede, não link morto.
+    tentativa baixou normalmente. Foi instabilidade de rede.
     """
     destino = config.DIR_AUDIO / episodio["arquivo"]
     if destino.exists() and destino.stat().st_size > 0:

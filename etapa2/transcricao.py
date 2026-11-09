@@ -84,7 +84,7 @@ def _modelo_gpu():
     try:
         modelo = WhisperModel(config.MODELO_WHISPER, device="cuda", compute_type=config.TIPO_COMPUTO_GPU)
         # A falta de DLL só aparece na primeira transcrição, então o teste
-        # transcreve 1 segundo de silêncio aqui, e não no meio da demo.
+        # transcreve 1 segundo de silêncio aqui, antes de a demo começar.
         segmentos, _ = modelo.transcribe(np.zeros(config.TAXA_AMOSTRAGEM, dtype=np.float32), language="en")
         list(segmentos)
         return modelo

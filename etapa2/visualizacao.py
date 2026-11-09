@@ -38,7 +38,7 @@ plt.rcParams.update(
         "axes.spines.top": False,
         "axes.spines.right": False,
         "axes.grid": True,
-        "axes.axisbelow": True,  # grade atrás das barras, não riscando por cima
+        "axes.axisbelow": True,  # a grade fica atrás das barras
         "grid.alpha": 0.25,
         "font.size": 10,
     }

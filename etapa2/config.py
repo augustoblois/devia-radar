@@ -96,7 +96,7 @@ TOP_DB_SILENCIO = 35
 PAUSA_LONGA = 0.7        # segundos: abaixo disso é só o respiro entre palavras
 
 # Faixa de frequência fundamental (F0) da voz falada. Abaixo de 65 Hz e
-# acima de 400 Hz o que aparece é ruído ou harmônico, não a voz.
+# acima de 400 Hz, o que o detector acha é ruído ou harmônico.
 F0_MIN = 65
 F0_MAX = 400
 JANELA_F0 = 1024         # 64 ms: o YIN precisa de pelo menos 2 períodos de F0_MIN
