@@ -1,0 +1,147 @@
+[
+  {
+    "id": "2025-5215",
+    "ano": 2025,
+    "titulo": "Talking to Robots: Uses and Abuses of LLMs in Communities",
+    "trilha": "Community",
+    "palestrantes": [
+      "David Allen"
+    ],
+    "duracao_min": 25,
+    "resumo": "Large language models (LLMs) may represent a shift in how open source communities support their members. This talk explores the nuanced and evolving role of LLMs in fostering community engagement. Specialized companies offer tailoring of LLM and automation of responses to technical questions. We will explore a range of adoption options from cautious, opt-in approaches confined to specific channels to fully embracing LLMs for first-line support across forums. These strategies raise questions like: Could automation stifle organic, person-to-person connections in communities, or can it expedite learning and enable meaningful contributions from newcomers? How do LLMs reshape the balance between in-person and digital interactions, and what does this mean for the future of community building? Are LLMs the natural evolution of IRC-era bots, or will they alter the patterns of open source collaboration? We’ll look at case studies from real communities. Attendees will get actionable insights for navigating the adoption of LLMs in their own communities, striking a balance between automation and authentic human connection.",
+    "url_pagina": "https://fosdem.org/2025/schedule/event/fosdem-2025-5215-talking-to-robots-uses-and-abuses-of-llms-in-communities/",
+    "url_video": "https://video.fosdem.org/2025/ub5230/fosdem-2025-5215-talking-to-robots-uses-and-abuses-of-llms-in-communities.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2025/ub5230/fosdem-2025-5215-talking-to-robots-uses-and-abuses-of-llms-in-communities.vtt",
+    "arquivo": "fosdem-2025-5215-talking-to-robots-uses-and-abuses-of-llms-in-communities.av1.webm",
+    "pontos": 11,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  },
+  {
+    "id": "2026-9343",
+    "ano": 2026,
+    "titulo": "Supply chain security meets AI: Detecting AI-generated code",
+    "trilha": "Security",
+    "palestrantes": [
+      "Philippe Ombredanne"
+    ],
+    "duracao_min": 25,
+    "resumo": "Everyone's excited (sarcasm) that AI coding tools make developers more productive. Security teams are excited too - they've never had this much job security. LLMs and AI-assisted coding tools are writing billions of lines of code, so teams can ship 10x faster. They're also inheriting vulnerabilities 10x faster. We need to detect AI-generated code and trace it back to its FOSS origins. The challenge: exact matching doesn't work for AI-generated code since each generation may have small variations given the same input prompt. AI-Generated Code Search (https://github.com/aboutcode-org/ai-gen-code-search) introduces a new approach using locality-sensitive hashing and content-defined chunking for approximate matching that actually works with AI output variations. This FOSS project delivers reusable open source libraries, public APIs, and open datasets that make AI code detection accessible to everyone, not just enterprises with massive budgets. In this talk, we'll explain how we fingerprint code fragments for fuzzy matching, build efficient indexes that don't balloon to terabytes, and trace AI-generated snippets back to their training data sources. We'll demo real examples of inherited vulnerabilities, show how it integrates with existing FOSS tools for SBOM and supply chain analysis, and explain how this directly supports CRA compliance for tracking code origin. Bottom line: if AI-generated code is in your dependencies (and it probably is), you need visibility into what it's deri",
+    "url_pagina": "https://fosdem.org/2026/schedule/event/XGLP7J-ai-generated-code/",
+    "url_video": "https://video.fosdem.org/2026/ub5132/XGLP7J-ai-generated-code.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2026/ub5132/XGLP7J-ai-generated-code.vtt",
+    "arquivo": "XGLP7J-ai-generated-code.av1.webm",
+    "pontos": 10,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  },
+  {
+    "id": "2025-5230",
+    "ano": 2025,
+    "titulo": "Live coding a streaming ChatGPT proxy with Swift OpenAPI—from scratch!",
+    "trilha": "Swift",
+    "palestrantes": [
+      "Si Beaumont",
+      "Honza Dvorsky"
+    ],
+    "duracao_min": 20,
+    "resumo": "Join us as we build a ChatGPT client, from scratch, using Swift OpenAPI Generator . We’ll take advantage of Swift OpenAPI’s pluggable HTTP transports to reuse the same generated client to make upstream calls from a Linux server, providing end-to-end streaming, backed by async sequences, without buffering upstream responses. In this session you’ll learn how to: Generate a type-safe ChatGPT macOS client and use URLSession OpenAPI transport . Stream LLM responses using Server Sent Events (SSE). Bootstrap a Linux proxy server using the Vapor OpenAPI transport . Use the same generated ChatGPT client within the proxy by switching to the AsyncHTTPClient transport . Efficiently transform responses from SSE to JSON Lines, maintaining end-to-end streaming.",
+    "url_pagina": "https://fosdem.org/2025/schedule/event/fosdem-2025-5230-live-coding-a-streaming-chatgpt-proxy-with-swift-openapi-from-scratch-/",
+    "url_video": "https://video.fosdem.org/2025/k4401/fosdem-2025-5230-live-coding-a-streaming-chatgpt-proxy-with-swift-openapi-from-scratch-.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2025/k4401/fosdem-2025-5230-live-coding-a-streaming-chatgpt-proxy-with-swift-openapi-from-scratch-.vtt",
+    "arquivo": "fosdem-2025-5230-live-coding-a-streaming-chatgpt-proxy-with-swift-openapi-from-scratch-.av1.webm",
+    "pontos": 7,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  },
+  {
+    "id": "2026-9731",
+    "ano": 2026,
+    "titulo": "Rspamd: A Year of Features and LLM-Assisted Development",
+    "trilha": "Modern Email",
+    "palestrantes": [
+      "Vsevolod Stakhov"
+    ],
+    "duracao_min": 30,
+    "resumo": "This talk covers Rspamd development from March to December 2025, focusing on four major areas. First, HTML fuzzy hashing - a new algorithm that generates structural fingerprints from DOM trees, enabling detection of phishing emails that reuse legitimate templates with modified links. Second, multi-class Bayesian classification that extends the traditional spam/ham model to support up to 20 categories (newsletters, transactional mail, promotions) with single-call Redis lookups. Third, protocol improvements including TCP transport for fuzzy queries and encrypted ZIP archive handling via libarchive. Fourth, neural network refactoring into a provider-based architecture for combining multiple feature sources. We'll also discuss practical experience using LLM tools for code generation, documentation, and PR review during this development cycle - what worked, what didn't, and where human judgment remains essential.",
+    "url_pagina": "https://fosdem.org/2026/schedule/event/7NMHDY-whats-new-rspamd-llm-development/",
+    "url_video": "https://video.fosdem.org/2026/k4201/7NMHDY-whats-new-rspamd-llm-development.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2026/k4201/7NMHDY-whats-new-rspamd-llm-development.vtt",
+    "arquivo": "7NMHDY-whats-new-rspamd-llm-development.av1.webm",
+    "pontos": 5,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  },
+  {
+    "id": "2026-7549",
+    "ano": 2026,
+    "titulo": "Self-Healing Rollouts: Automating Production Fixes with Agentic AI",
+    "trilha": "Testing and Continuous Delivery",
+    "palestrantes": [
+      "Carlos Sanchez"
+    ],
+    "duracao_min": 25,
+    "resumo": "Even with robust CI/CD, production rollouts can hit unexpected snags. While in Kubernetes Argo Rollouts excels at Progressive Delivery and automated rollbacks to mitigate deployment issues, what if we could go a step further? This session explores how to elevate your release process by integrating Agentic AI and asynchronous coding agents, with Argo Rollouts canary deployments. We'll demonstrate how an intelligent agent can automatically analyze a rollout failure, pinpointing the root cause. Beyond diagnosis, these agents can take proactive steps on your behalf, suggesting and even implementing code fixes as new pull requests, which can be redeployed automatically after PR review. This approach moves us closer to truly self-healing deployments. Join us to learn how to combine the power of Kubernetes and Argo Rollouts with the autonomous capabilities of Agentic AI, achieving a release experience that is not only seamless but also resilient.",
+    "url_pagina": "https://fosdem.org/2026/schedule/event/EDUCXT-self-healing_rollouts_automating_production_fixes_with_agentic_ai/",
+    "url_video": "https://video.fosdem.org/2026/h2213/EDUCXT-self-healing_rollouts_automating_production_fixes_with_agentic_ai.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2026/h2213/EDUCXT-self-healing_rollouts_automating_production_fixes_with_agentic_ai.vtt",
+    "arquivo": "EDUCXT-self-healing_rollouts_automating_production_fixes_with_agentic_ai.av1.webm",
+    "pontos": 5,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  },
+  {
+    "id": "2026-9486",
+    "ano": 2026,
+    "titulo": "Drag, Drop, and Deploy: Low-Code AI Agents for Network Ops",
+    "trilha": "Network",
+    "palestrantes": [
+      "Alfonso Sandoval Rosas"
+    ],
+    "duracao_min": 20,
+    "resumo": "Network operations still depend heavily on manual workflows. Engineers move between CLIs, dashboards, and scripts to answer operational questions, validate configurations, and enforce compliance across diverse network platforms. These tasks are repetitive, error-prone, and hard to scale. This talk presents a practical AgenticOps architecture for network operations built with open source tools. It shows how low-code visual orchestration can be combined with LLM-based reasoning to automate both interactive and scheduled tasks while preserving native CLI access. The system uses n8n for workflow orchestration, Model Context Protocol servers written in Python with FastMCP to expose network capabilities, and Cisco pyATS to execute platform-aware CLI commands across multiple device families. Operators interact through a chat interface using natural language. The LLM classifies intent, discovers device type, selects the correct commands, executes them via pyATS, and returns structured results. The same workflows also handle automated compliance checks, report generation, and scheduled validations. The session includes a live demonstration and a GitHub repository with MCP servers, n8n workflows, and deployment examples ready to adapt to real environments.",
+    "url_pagina": "https://fosdem.org/2026/schedule/event/7HCJGS-drag_drop_and_deploy_low-code_ai_agents_for_network_ops/",
+    "url_video": "https://video.fosdem.org/2026/h1302/7HCJGS-drag_drop_and_deploy_low-code_ai_agents_for_network_ops.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2026/h1302/7HCJGS-drag_drop_and_deploy_low-code_ai_agents_for_network_ops.vtt",
+    "arquivo": "7HCJGS-drag_drop_and_deploy_low-code_ai_agents_for_network_ops.av1.webm",
+    "pontos": 5,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  },
+  {
+    "id": "2025-6422",
+    "ano": 2025,
+    "titulo": "Using LLMs to support Firefox developers with code review",
+    "trilha": "Main Track - K Building",
+    "palestrantes": [
+      "Marco Castelluccio"
+    ],
+    "duracao_min": 50,
+    "resumo": "Mozilla has been experimenting with the usage of machine learning (in particular, large language models) to aid Firefox developers with code review. This talk will explain the architecture of the software, and the path that led there, including iterative improvements to the prompts, retrieval augmented generation, integration of pre-existing tools such as code search. In addition, we will delve into the results of the initial experiments, our plans for the future of the tool, and the potential for its adoption in other open source projects. The project source code is part of the bugbug repository , which is a platform for Machine Learning projects on Software Engineering used by Mozilla for various tasks (for example, bug triage and test selection).",
+    "url_pagina": "https://fosdem.org/2025/schedule/event/fosdem-2025-6422-using-llms-to-support-firefox-developers-with-code-review/",
+    "url_video": "https://video.fosdem.org/2025/k1105/fosdem-2025-6422-using-llms-to-support-firefox-developers-with-code-review.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2025/k1105/fosdem-2025-6422-using-llms-to-support-firefox-developers-with-code-review.vtt",
+    "arquivo": "fosdem-2025-6422-using-llms-to-support-firefox-developers-with-code-review.av1.webm",
+    "pontos": 4,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  },
+  {
+    "id": "2026-8536",
+    "ano": 2026,
+    "titulo": "Testing on hardware with Claude AI",
+    "trilha": "Testing and Continuous Delivery",
+    "palestrantes": [
+      "Andreea Daniela Andrisan"
+    ],
+    "duracao_min": 15,
+    "resumo": "Talk about a project that implements a hardware-in-the-loop testing framework for validating Linux distributions on specific development boards. The system uses a universal testing harness that automatically detects target hardware platforms and adapts generic testing scripts to board-specific configurations with Claude AI help. Platform adaptation is achieved through specific configuration files that define board-specific parameters, enabling the same testing codebase to validate different hardware capabilities. The GitHub Actions CI/CD integration provides automated testing across multiple platforms, with matrix-based execution that flashes appropriate images and runs comprehensive validation including hardware-specific feature testing.",
+    "url_pagina": "https://fosdem.org/2026/schedule/event/9SZVST-testing-on-hardware-with-claude-ai/",
+    "url_video": "https://video.fosdem.org/2026/h2213/9SZVST-testing-on-hardware-with-claude-ai.av1.webm",
+    "url_legenda": "https://video.fosdem.org/2026/h2213/9SZVST-testing-on-hardware-with-claude-ai.vtt",
+    "arquivo": "9SZVST-testing-on-hardware-with-claude-ai.av1.webm",
+    "pontos": 4,
+    "pontos_titulo": 1,
+    "tem_desenvolvimento": true
+  }
+]
