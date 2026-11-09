@@ -1,10 +1,25 @@
-# DevIA Radar - Etapa 1
+# DevIA Radar - Etapas 1, 2 e 3
 # Instalacao:
 #   pip install -r requirements.txt
 #   python -m spacy download en_core_web_sm
 
-requests>=2.32          # requisicoes HTTP para a GitHub Search API
+# Etapa 1 (texto)
+requests>=2.32          # requisicoes HTTP (GitHub, iTunes, FOSDEM)
 spacy>=3.8              # PLN: tokenizacao, lematizacao, POS, NER
 nltk>=3.9               # VADER, analise de sentimento por lexico
 matplotlib>=3.9         # graficos
 wordcloud>=1.9          # nuvem de palavras
+
+# Etapa 2 (audio)
+librosa>=1.0            # sinal: energia, pausas, espectrograma Mel, MFCC, altura da voz
+faster-whisper>=1.2     # transcricao com o Whisper
+scipy>=1.11             # correlacao de Spearman
+
+# Etapa 3 (video)
+av>=14                  # PyAV: decodifica o video e o audio das palestras
+opencv-python>=4.10,<5  # imagem: diferenca entre quadros, Canny, rosto (YuNet). Testado na 4.13
+rapidocr-onnxruntime>=1.2  # OCR: le o texto dos slides
+
+# Opcional: transcricao na placa de video NVIDIA, no Windows. Sem estes
+# pacotes o programa usa a CPU sozinho.
+#   pip install nvidia-cublas-cu12 nvidia-cudnn-cu12
