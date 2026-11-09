@@ -126,7 +126,7 @@ matplotlib
 ### Agenda XML da FOSDEM (`coleta.py`)
 
 A FOSDEM é a maior conferência europeia de software livre. Todo ano ela grava
-mais de mil palestras e publica a agenda num XML, um formato
+quase mil palestras e publica a agenda num XML, um formato
 **semiestruturado**: as marcações (`<event>`, `<title>`, `<abstract>`)
 organizam o arquivo, mas o conteúdo de dentro é texto livre. O
 `xml.etree.ElementTree`, que vem com o Python, lê as marcações, e a regex lê
