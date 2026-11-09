@@ -28,6 +28,7 @@ Onde aprender: https://spacy.io/usage/spacy-101 (curso gratuito e oficial).
 
 from __future__ import annotations
 
+import itertools
 import json
 from collections import Counter
 from typing import Any
@@ -131,7 +132,7 @@ def analisar(corpus: list[dict[str, Any]], salvar: bool = True) -> dict[str, Any
 
         # Bigrama: par de lemas vizinhos. Revela expressão composta
         # ("code quality", "pull request") que token isolado esconde.
-        bigramas.update(f"{a} {b}" for a, b in zip(lemas, lemas[1:]))
+        bigramas.update(f"{a} {b}" for a, b in itertools.pairwise(lemas))
 
         for ent in doc.ents:
             # Dois filtros, e os dois vieram de erro observado na prática:

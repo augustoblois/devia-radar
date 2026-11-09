@@ -240,7 +240,7 @@ def menu() -> None:
                 OPCOES[escolha][1](estado)
             except KeyboardInterrupt:
                 print("\n  [interrompido pelo usuário]")
-            except Exception as erro:  # a apresentação não pode morrer no meio
+            except Exception as erro:  # noqa: BLE001 (a apresentação não pode morrer no meio)
                 print(f"\n  [erro] {type(erro).__name__}: {erro}")
         else:
             print("\n  [!] opção inválida")

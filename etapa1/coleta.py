@@ -129,7 +129,7 @@ def buscar_termo(
             break
 
         if resposta.status_code == 403:
-            print(f"    [rate limit] GitHub barrou. Aguardando 60s...")
+            print("    [rate limit] GitHub barrou. Aguardando 60s...")
             time.sleep(60)
             continue
 
