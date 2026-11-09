@@ -216,7 +216,33 @@ issues), então o efeito é menor:
 
 ---
 
-## 11. Limites que ficaram
+## 11. O slide visual parecia deixar a fala mais emotiva
+
+**O que aconteceu.** Separando as frases pelo tipo de tela do mesmo segundo,
+o slide visual (foto, meme, diagrama) saiu com 33% de frases positivas e 17%
+de negativas, contra 25% e 10% no slide de texto. Parecia que a imagem na
+tela puxava a emoção de quem fala.
+
+**Diagnóstico.** 141 das 193 frases ditas com slide visual são de uma
+palestra só, a do Rspamd, que usa muito meme e foto. Essa palestra é mais
+emotiva com qualquer tela: no slide de texto, tem 35% de frases positivas e
+13% de negativas, e as outras sete palestras, 24% e 9%. O número junto
+misturava o efeito da tela com o jeito de falar de uma pessoa. Dentro do
+próprio Rspamd, o slide visual e o de texto têm quase a mesma fração de
+frases positivas (33% e 35%).
+
+**Correção.** A leitura mudou, e o slide de resultados diz isso. Sem o
+Rspamd, sobram 52 frases com slide visual: 31% positivas e 4% negativas,
+contra 24% e 9% no slide de texto. Com tão poucas frases, não dá para dizer
+que a tela muda o tom.
+
+**Lição.** Com 8 palestras, uma palestra pode responder por quase toda uma
+categoria. Antes de comparar categorias, contar de onde vêm as frases de
+cada uma.
+
+---
+
+## 12. Limites que ficaram
 
 | Limite | Efeito |
 |---|---|

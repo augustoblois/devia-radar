@@ -218,9 +218,13 @@ telas, 30.087 palavras escritas na tela e 26.499 faladas.
 - **A velocidade da fala quase não muda com a tela**: 138 palavras por minuto
   no slide de texto, 142 no código e 136 na interface. Só a tela em movimento
   derruba a fala, para 85 palavras por minuto (47 frases, 2% do tempo).
-- **No slide visual, a fala é mais emotiva.** Diante de foto, meme ou
-  diagrama, 33% das frases são positivas e 17% negativas. No slide de texto,
-  25% e 10%.
+- **O tom acompanha quem fala, mais do que a tela.** Diante de foto, meme ou
+  diagrama, 33% das frases são positivas e 17% negativas; no slide de texto,
+  25% e 10%. Só que 141 das 193 frases ditas com slide visual são da palestra
+  do Rspamd, que é mais emotiva com qualquer tela: no slide de texto, ela tem
+  35% de frases positivas, e as outras sete palestras, 24%. Sem o Rspamd,
+  sobram 52 frases com slide visual, com menos negativas que o slide de texto
+  (4% contra 9%). Ver o diário.
 - **A lista de vocabulário ganha da legenda oficial.** 44 nomes de ferramenta
   aparecem só na nossa transcrição, e nenhum só na legenda. Na conferência
   manual, 33 são erros da legenda ("cloth" no lugar de Claude, 11 vezes numa
