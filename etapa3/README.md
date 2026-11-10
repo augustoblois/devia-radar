@@ -226,12 +226,12 @@ frase.
   slide **visual**. Com 50 linhas ou mais (30, se a tela for escura), é
   captura de ferramenta: **código** se a tela é escura ou se 15% das linhas
   têm cara de código, **interface** no resto. O que sobra é slide de **texto**.
-- **Whisper**: modelo `small`, beam search de 5, filtro de voz e a lista de
-  vocabulário com os nomes das ferramentas. O áudio sai do próprio arquivo de
-  vídeo, o mesmo que o `sinal.py` mede.
+- **Whisper**: modelo `small`, beam search de 5, filtro de voz e uma lista
+  com os nomes das ferramentas (o `PROMPT_VOCABULARIO` do `config.py`). O
+  áudio sai do próprio arquivo de vídeo, o mesmo que o `sinal.py` mede.
 - **Legenda oficial**: a FOSDEM publica um arquivo `.vtt` por palestra. Ela
   também sai de reconhecimento automático de fala, mas sem lista de
-  vocabulário. Comparar as duas mede o efeito da lista em dados novos.
+  nomes. Comparar as duas mede o efeito da lista em dados novos.
 
 ### Regex, spaCy, VADER e Spearman (`conteudo.py`)
 
@@ -304,7 +304,7 @@ telas, 30.087 palavras escritas na tela e 26.499 faladas.
   = 0,79), e com a F0, −0,008 (p = 0,70). Separando por classe, as frases
   positivas (+0,09) e as negativas (+0,12) saem um pouco mais altas que as
   neutras (+0,02), uma diferença de um décimo de desvio-padrão ou menos.
-- **A lista de vocabulário ganha da legenda oficial.** 44 nomes de ferramenta
+- **A lista de nomes ganha da legenda oficial.** 44 nomes de ferramenta
   aparecem só na nossa transcrição, e nenhum só na legenda. Na conferência
   manual, 33 são erros da legenda ("cloth" no lugar de Claude, 11 vezes numa
   palestra só), 6 são erros nossos causados pela própria lista ("OpenAPI"

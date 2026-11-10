@@ -42,11 +42,11 @@ própria escolha não prova nada sozinho.
 
 ---
 
-## ⭐ 2. A lista de vocabulário acerta "cloth" e inventa "Claude striked"
+## ⭐ 2. A lista de nomes acerta "cloth" e inventa "Claude striked"
 
 **O que aconteceu.** A FOSDEM publica uma legenda para cada palestra. Ela
 também sai de um reconhecimento automático de fala, mas sem lista de
-vocabulário. Comparando com a nossa transcrição no mesmo intervalo de tempo,
+nomes. Comparando com a nossa transcrição no mesmo intervalo de tempo,
 44 nomes de ferramenta aparecem só na nossa, e nenhum aparece só na legenda.
 
 **Diagnóstico.** Conferimos os 44 à mão:
@@ -78,7 +78,7 @@ escreve "cloth". Para mostrar o caso ruim, a opção 11 com o padrão `striked`.
 
 ---
 
-## ⭐ 3. O detector de rosto clássico não achava o palestrante
+## 3. O detector de rosto clássico não achava o palestrante
 
 **O que aconteceu.** Para medir quanto tempo o palestrante aparece, o
 primeiro detector foi o Haar cascade, que vem dentro do OpenCV. Em 96
@@ -345,7 +345,7 @@ palestra, a diferença entre vozes não pesa no cruzamento com a tela.
 
 ---
 
-## 15. A sala barulhenta escondia as pausas
+## ⭐ 15. A sala barulhenta escondia as pausas
 
 **O que aconteceu.** A palestra do Rspamd saiu com 0,3 pausa longa por minuto
 e 10,5% de silêncio. As outras sete ficaram entre 2,2 e 9,6 pausas por
@@ -406,7 +406,7 @@ pode responder por quase toda uma categoria.
 | Tempo de captura é um piso | 3 das 32 telas de conferência eram capturas curtas lidas como slide. |
 | Tela apagada vira "visual" | A palestra do Firefox começa com 93 s de projetor preto. Sem texto, o classificador chama de "visual" (0,8% do tempo total). |
 | Câmera em plano aberto | Na mesma palestra, a câmera filma a sala de longe e o rosto aparece em 1,1% do tempo. O palestrante está lá, mas pequeno demais para o detector. |
-| A legenda oficial também é automática | A comparação mede o efeito da lista de vocabulário: as duas transcrições são automáticas. |
+| A legenda oficial também é automática | A comparação mede o efeito da lista de nomes: as duas transcrições são automáticas. |
 | Tempo da frase estimado | O tempo de cada frase sai da posição dos caracteres no trecho do Whisper, e a voz da frase vem dos segundos que esse tempo cobre. |
 | Uma voz por palestra | O som não separa as pessoas: quem anuncia o palestrante e quem pergunta da plateia entram na voz da palestra (entrada 16). |
 | Pausa depende do limiar | No Rspamd, com o limiar em −42 ou −38 dB, em vez de −39,8, a contagem vai de 4,3 para 2,7 ou 5,0 pausas por minuto (entrada 15). |
