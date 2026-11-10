@@ -202,7 +202,7 @@ def classificar_corpus(avaliadas: list[dict[str, Any]], forcar: bool = False) ->
     with config.ARQ_TRANSFORMER.open("w", encoding="utf-8") as arquivo:
         json.dump({"modelo": config.MODELO_SENTIMENTO, "n": len(avaliadas),
                    "probabilidades": np.round(probabilidades, 4).tolist()}, arquivo)
-    return probabilidades
+    return np.round(probabilidades, 4)  # o mesmo arredondamento do cache: o resultado não depende dele
 
 
 def _distribuicao(classes: list[str]) -> dict[str, int]:
