@@ -1,20 +1,21 @@
 """
-DevIA Radar - Etapa 3 (vídeo)
+DevIA Radar - Etapa 3 (áudio e vídeo)
 Como desenvolvedores APRESENTAM Inteligência Artificial no desenvolvimento
 de software, a partir de palestras gravadas da FOSDEM.
 
 Disciplina: Dados Não Estruturados (UFPB)
-Etapa 3: análise de vídeo com módulos Python.
+Etapa 3: análise de áudio e vídeo com módulos Python.
 
 Uso:
     python main.py            abre o menu interativo
     python main.py --tudo     roda o pipeline inteiro sem perguntar nada
 
 Pipeline:
-    agenda XML da FOSDEM -> PyAV + OpenCV (quadros: troca de slide, bordas,
-    rosto) -> RapidOCR (texto da tela) + Whisper (fala) + legenda oficial
-    -> regex + spaCy + VADER (conteúdo) -> matplotlib (dashboard e painel
-    final das três etapas)
+    agenda XML da FOSDEM -> PyAV + OpenCV (imagem: troca de slide, bordas,
+    rosto) + librosa (som: pausas, energia, altura da voz) -> RapidOCR
+    (texto da tela) + Whisper (fala) + legenda oficial -> regex + spaCy +
+    VADER (conteúdo) -> matplotlib (dashboard e painel final: o escrito
+    nas issues x o falado nas palestras)
 """
 
 from __future__ import annotations
@@ -30,6 +31,7 @@ import config
 import conteudo
 import leitura
 import quadros
+import sinal
 import visualizacao
 
 LARGURA = 72
@@ -41,6 +43,7 @@ class Estado:
     def __init__(self) -> None:
         self.palestras: list[dict[str, Any]] = []
         self.visual: dict[str, Any] = {}
+        self.acustica: dict[str, Any] = {}
         self.lidas: dict[str, Any] = {}
         self.transcricoes: dict[str, Any] = {}
         self.analise: dict[str, Any] = {}
@@ -49,6 +52,7 @@ class Estado:
         if config.ARQ_PALESTRAS.exists():
             self.palestras = coleta.selecionar()
         self.visual = quadros.carregar_analise()
+        self.acustica = sinal.carregar_analise()
         self.lidas = leitura.carregar_leitura()
         self.transcricoes = leitura.carregar_transcricoes(self.palestras)
         self.analise = conteudo.carregar_analise()
@@ -96,13 +100,25 @@ def acao_visual(estado: Estado) -> None:
     estado.visual = quadros.analisar(estado.palestras)
 
 
+def acao_demo_som(estado: Estado) -> None:
+    titulo("5. DEMONSTRAÇÃO: DO SOM AOS NÚMEROS (librosa)")
+    sinal.demonstrar(estado.palestras)
+
+
+def acao_acustica(estado: Estado) -> None:
+    titulo("6. CARACTERÍSTICAS DO SOM DE TODAS AS PALESTRAS (librosa)")
+    if not exigir(bool(estado.palestras), "Colete as palestras primeiro (opção 1)."):
+        return
+    estado.acustica = sinal.analisar(estado.palestras)
+
+
 def acao_demo_leitura(estado: Estado) -> None:
-    titulo("5. DEMONSTRAÇÃO: TELA (OCR), FALA (WHISPER) E LEGENDA OFICIAL")
+    titulo("7. DEMONSTRAÇÃO: TELA (OCR), FALA (WHISPER) E LEGENDA OFICIAL")
     leitura.demonstrar(estado.palestras, estado.visual)
 
 
 def acao_ler(estado: Estado) -> None:
-    titulo("6. LEITURA DAS TELAS (OCR) E TRANSCRIÇÃO DAS FALAS (WHISPER)")
+    titulo("8. LEITURA DAS TELAS (OCR) E TRANSCRIÇÃO DAS FALAS (WHISPER)")
     if not exigir(bool(estado.visual), "Extraia as características visuais primeiro (opção 4)."):
         return
     estado.lidas = leitura.ler_telas(estado.palestras, estado.visual)
@@ -112,18 +128,21 @@ def acao_ler(estado: Estado) -> None:
 
 
 def acao_conteudo(estado: Estado) -> None:
-    titulo("7. ANÁLISE: TIPO DE TELA, FERRAMENTAS, FALA E AS TRÊS ETAPAS")
-    if not exigir(bool(estado.lidas and estado.transcricoes), "Leia as telas e transcreva as falas (opção 6)."):
+    titulo("9. ANÁLISE: TELA, VOZ, FERRAMENTAS, FALA E O ESCRITO x O FALADO")
+    if not exigir(bool(estado.acustica), "Meça o som das palestras primeiro (opção 6)."):
         return
-    estado.analise = conteudo.analisar(estado.palestras, estado.visual, estado.lidas, estado.transcricoes)
+    if not exigir(bool(estado.lidas and estado.transcricoes), "Leia as telas e transcreva as falas (opção 8)."):
+        return
+    estado.analise = conteudo.analisar(estado.palestras, estado.visual, estado.lidas, estado.transcricoes,
+                                       estado.acustica)
     conteudo.imprimir(estado.analise)
 
 
 def acao_graficos(estado: Estado) -> None:
-    titulo("8. GRÁFICOS, DASHBOARD E PAINEL DAS TRÊS ETAPAS")
-    if not exigir(bool(estado.analise), "Rode a análise primeiro (opção 7)."):
+    titulo("10. GRÁFICOS, DASHBOARD E PAINEL FINAL")
+    if not exigir(bool(estado.analise), "Rode a análise primeiro (opção 9)."):
         return
-    visualizacao.gerar_todos(estado.analise, estado.visual, estado.lidas, estado.palestras)
+    visualizacao.gerar_todos(estado.analise, estado.visual, estado.lidas, estado.acustica, estado.palestras)
 
 
 def contexto(texto: str, padrao: re.Pattern[str], largura: int = 70) -> str:
@@ -136,12 +155,12 @@ def acao_buscar(estado: Estado) -> None:
     """
     Busca por regex no que foi dito e no que estava escrito na tela.
 
-    É a KWIC (keyword in context) das etapas anteriores. Cada achado tem o
-    segundo do vídeo, então o programa abre o QUADRO daquele momento e toca
-    o áudio: a turma vê o slide e ouve a frase.
+    É a KWIC (keyword in context) da etapa 1. Cada achado tem o segundo do
+    vídeo, então o programa abre o QUADRO daquele momento e toca o áudio: a
+    turma vê o slide e ouve a frase.
     """
-    titulo("9. BUSCA NA FALA E NA TELA, COM O QUADRO E O ÁUDIO DO MOMENTO")
-    if not exigir(bool(estado.transcricoes or estado.lidas), "Leia as telas e transcreva as falas (opção 6)."):
+    titulo("11. BUSCA NA FALA E NA TELA, COM O QUADRO E O ÁUDIO DO MOMENTO")
+    if not exigir(bool(estado.transcricoes or estado.lidas), "Leia as telas e transcreva as falas (opção 8)."):
         return
 
     entrada = input("  padrão regex (ex.: claude|copilot): ").strip()
@@ -177,14 +196,15 @@ def acao_buscar(estado: Estado) -> None:
     # Um segundo de folga antes, para não cortar a primeira sílaba.
     inicio = max(achado["inicio"] - 1, 0)
     fim = inicio + min(achado["fim"] - achado["inicio"] + 2, 15)
-    sinal = leitura.audio(achado["palestra"])
-    leitura.tocar(sinal[int(inicio * config.TAXA_AMOSTRAGEM):int(fim * config.TAXA_AMOSTRAGEM)], "trecho_busca.wav")
+    som = leitura.audio(achado["palestra"])
+    leitura.tocar(som[int(inicio * config.TAXA_AMOSTRAGEM):int(fim * config.TAXA_AMOSTRAGEM)], "trecho_busca.wav")
 
 
 def acao_pipeline(estado: Estado) -> None:
     titulo("PIPELINE COMPLETO")
     acao_coletar(estado)
     acao_visual(estado)
+    acao_acustica(estado)
     acao_ler(estado)
     acao_conteudo(estado)
     acao_graficos(estado)
@@ -197,16 +217,19 @@ def acao_pipeline(estado: Estado) -> None:
 # Menu
 # ---------------------------------------------------------------------------
 
+# Na ordem do menu: imagem (3 e 4), som (5 e 6), tela e fala (7 e 8), resultado.
 OPCOES = {
-    "1": ("Coletar palestras (agenda XML da FOSDEM) e baixar vídeo e legenda", acao_coletar),
+    "1": ("Coletar palestras (agenda XML da FOSDEM), vídeo e legenda", acao_coletar),
     "2": ("Ver resumo das palestras coletadas", acao_resumo),
     "3": ("Demonstrar um quadro: regiões, diferença, bordas e rostos", acao_demo_quadro),
     "4": ("Extrair características visuais de todas (OpenCV)", acao_visual),
-    "5": ("Demonstrar a leitura: OCR do slide, Whisper e legenda oficial", acao_demo_leitura),
-    "6": ("Ler as telas (OCR) e transcrever as falas (Whisper)", acao_ler),
-    "7": ("Analisar: tipo de tela, ferramentas, fala e as três etapas", acao_conteudo),
-    "8": ("Gerar gráficos, dashboard e painel das três etapas", acao_graficos),
-    "9": ("Buscar palavra na fala e na tela e ver o momento (KWIC)", acao_buscar),
+    "5": ("Demonstrar o som: onda, energia, espectrograma, MFCC e ouvir", acao_demo_som),
+    "6": ("Medir o som de todas: pausas, energia e altura da voz (librosa)", acao_acustica),
+    "7": ("Demonstrar a leitura: OCR do slide, Whisper e legenda oficial", acao_demo_leitura),
+    "8": ("Ler as telas (OCR) e transcrever as falas (Whisper)", acao_ler),
+    "9": ("Analisar: tela, voz, ferramentas, fala e o escrito x o falado", acao_conteudo),
+    "10": ("Gerar gráficos, dashboard e painel final", acao_graficos),
+    "11": ("Buscar palavra na fala e na tela e ver o momento (KWIC)", acao_buscar),
     "0": ("Rodar o pipeline completo", acao_pipeline),
 }
 
@@ -217,6 +240,7 @@ def estado_atual(estado: Estado) -> str:
         f"palestras:{len(estado.palestras)}",
         f"vídeo:{com_video}",
         f"visual:{len(estado.visual.get('palestras', {}))}",
+        f"som:{len(estado.acustica.get('palestras', {}))}",
         f"telas lidas:{len(estado.lidas)}",
         f"falas:{len(estado.transcricoes)}",
         f"análise:{'ok' if estado.analise else '-'}",
@@ -229,13 +253,13 @@ def menu() -> None:
     estado.carregar_do_disco()
 
     while True:
-        titulo("DevIA Radar - Etapa 3 (vídeo) - Dados Não Estruturados (UFPB)")
+        titulo("DevIA Radar - Etapa 3 (áudio e vídeo) - Dados Não Estruturados (UFPB)")
         print(f" estado: {estado_atual(estado)}")
         print("-" * LARGURA)
-        for chave in ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0"):
-            print(f"  [{chave}] {OPCOES[chave][0]}")
-        print("  [r] Recoletar do zero (ignora o cache)")
-        print("  [s] Sair")
+        for chave, (texto, _) in OPCOES.items():
+            print(f"  {'[' + chave + ']':<5}{texto}")
+        print(f"  {'[r]':<5}Recoletar do zero (ignora o cache)")
+        print(f"  {'[s]':<5}Sair")
         print("-" * LARGURA)
 
         escolha = input("  opção: ").strip().lower()

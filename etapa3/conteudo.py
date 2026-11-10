@@ -1,23 +1,33 @@
 """
-Etapa 3 - CONTEÚDO DA PALESTRA: tela, fala e legenda cruzadas pelo tempo.
+Etapa 3 - CONTEÚDO DA PALESTRA: tela, voz, fala e legenda cruzadas pelo tempo.
 
-O quadros.py diz QUANDO a tela muda; o leitura.py diz O QUE a tela mostra e
-O QUE a palestra diz. Este módulo junta as três coisas pelo relógio do
-vídeo e responde quatro perguntas:
+O quadros.py diz QUANDO a tela muda; o sinal.py diz COMO a voz soa; o
+leitura.py diz O QUE a tela mostra e O QUE a palestra diz. Este módulo junta
+tudo pelo relógio do vídeo e responde cinco perguntas:
 
 1. Que tela as palestras sobre IA mostram: slide (de texto ou visual) ou
    captura de ferramenta (código ou interface)? Quanto tempo a tela fica em
    movimento (demo ao vivo, rolagem)?
 2. As ferramentas de IA aparecem mais na tela ou na fala? A legenda oficial
    (sem lista de vocabulário) perde nomes que a nossa transcrição acha?
-3. A fala muda junto com a tela? Velocidade (WPM) e sentimento da fala
-   enquanto a tela mostra cada tipo.
-4. Painel final: texto (etapa 1), fala (etapa 2) e vídeo (etapa 3) lado a
-   lado, contados com as mesmas regras.
+3. A fala e a voz mudam junto com a tela? Velocidade (WPM) e sentimento da
+   fala, pausas, energia e altura da voz enquanto a tela mostra cada tipo.
+4. A voz muda quando a frase é positiva ou negativa?
+5. Painel final: o texto escrito nas issues do GitHub (etapa 1) e a fala
+   das palestras lado a lado, contados com as mesmas regras.
 
-As técnicas de texto são as das etapas 1 e 2: regex para ferramentas,
-spaCy para o vocabulário e VADER para o sentimento, medido frase a frase
-como na etapa 2.
+As técnicas de texto são as da etapa 1: regex para ferramentas, spaCy para
+o vocabulário e VADER para o sentimento, medido frase a frase.
+
+Vocabulário novo deste módulo:
+- Palavras por minuto (WPM): velocidade da fala. Conversa em inglês fica
+  perto de 150 WPM.
+- Escore z: quantos desvios-padrão um valor está acima da média da própria
+  palestra. Cada sala tem um microfone e cada pessoa tem uma altura de voz.
+  Comparar a energia crua misturaria isso com o momento da palestra. O
+  escore z responde "a voz está mais alta que o normal DESTA palestra?".
+- Correlação de Spearman (rho): mede se duas grandezas sobem juntas, de -1
+  a +1, usando a ordem dos valores. Perto de 0 quer dizer sem relação.
 """
 
 from __future__ import annotations
@@ -25,7 +35,7 @@ from __future__ import annotations
 import itertools
 import json
 import re
-from collections import Counter
+from collections import Counter, defaultdict
 from typing import Any
 
 import numpy as np
@@ -36,7 +46,7 @@ import leitura
 TIPOS = list(config.PALETA_TELA)  # texto, visual, código, interface, movimento
 
 # ---------------------------------------------------------------------------
-# Regex de ferramentas e sentimento: as mesmas das etapas 1 e 2
+# Regex de ferramentas e sentimento: as mesmas da etapa 1
 # ---------------------------------------------------------------------------
 
 
@@ -58,9 +68,15 @@ REGEX_FERRAMENTAS = {
 RE_QUALQUER_FERRAMENTA = _regex_de_vocabulario(
     [v for vs in config.FERRAMENTAS_IA.values() for v in vs], config.CURSOR_FALA
 )
+# No texto escrito das issues, o Cursor sozinho só conta com a maiúscula
+# (config.CURSOR_ESCRITA). O `(?-i:...)` desliga o IGNORECASE só ali dentro.
+REGEX_ESCRITA = {
+    nome: _regex_de_vocabulario(v, f"(?-i:{config.CURSOR_ESCRITA})" if nome == "Cursor" else None)
+    for nome, v in config.FERRAMENTAS_IA.items()
+}
 
 # Fim de frase: ponto, exclamação ou interrogação seguidos de espaço, ou
-# quebra de linha. A mesma regra da etapa 2.
+# quebra de linha. A mesma regra corta a fala e o texto das issues.
 RE_FRASE = re.compile(r"(?<=[.!?])\s+|\n+")
 
 
@@ -77,7 +93,7 @@ _VADER = None
 
 
 def _vader():
-    """O VADER da etapa 1, sem as palavras de config.SEM_SENTIMENTO (como na etapa 2)."""
+    """O VADER da etapa 1, sem as palavras de config.SEM_SENTIMENTO (diário de bordo, entrada 10)."""
     global _VADER
     if _VADER is None:
         import nltk
@@ -102,6 +118,40 @@ def classificar(compound: float) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Voz: escore z e correlação
+# ---------------------------------------------------------------------------
+
+
+def _escore_z(valores: list[float | None]) -> list[float | None]:
+    """Escore z de cada valor, com a média e o desvio dos valores presentes da lista."""
+    presentes = np.array([v for v in valores if v is not None], dtype=float)
+    if presentes.size < 2 or presentes.std() == 0:
+        return [None] * len(valores)
+    media, desvio = presentes.mean(), presentes.std()
+    return [None if v is None else round(float((v - media) / desvio), 3) for v in valores]
+
+
+def _spearman(x: list[float], y: list[float]) -> dict[str, float] | None:
+    if len(x) < 10:
+        return None
+    from scipy.stats import spearmanr
+
+    resultado = spearmanr(x, y)
+    return {"rho": round(float(resultado.statistic), 3), "p": float(resultado.pvalue), "n": len(x)}
+
+
+def _voz_da_frase(curvas: dict[str, list], inicio: float, fim: float) -> tuple[float | None, float | None]:
+    """Energia média e F0 mediana dos segundos que a frase ocupa (só os segundos com medida)."""
+    primeiro, ultimo = int(inicio), max(int(np.ceil(fim)), int(inicio) + 1)
+    energia = [e for e in curvas["energia_db"][primeiro:ultimo] if e is not None]
+    alturas = [f for f in curvas["f0_hz"][primeiro:ultimo] if f is not None]
+    return (
+        float(np.mean(energia)) if energia else None,
+        float(np.median(alturas)) if alturas else None,
+    )
+
+
+# ---------------------------------------------------------------------------
 # Cruzamento pelo tempo
 # ---------------------------------------------------------------------------
 
@@ -122,9 +172,56 @@ def tipo_por_segundo(visual: dict[str, Any], lidas: list[dict[str, Any]]) -> lis
     return por_segundo
 
 
+def voz_por_tipo(por_segundo: list[str | None], curvas: dict[str, list], pausas: list[list[float]]) -> dict[str, dict[str, Any]]:
+    """
+    A voz de uma palestra enquanto a tela mostra cada tipo (somas, para juntar depois).
+
+    Energia e F0 de cada segundo viram escore z dentro da palestra, contra
+    os segundos válidos dela (dentro da moldura padrão). Cada pausa longa
+    entra no tipo de tela do seu segundo do meio, como a frase.
+    """
+    n = min(len(por_segundo), len(curvas["energia_db"]))
+    tipos = por_segundo[:n]
+    energia = _escore_z([e if t else None for e, t in zip(curvas["energia_db"][:n], tipos)])
+    f0 = _escore_z([f if t else None for f, t in zip(curvas["f0_hz"][:n], tipos)])
+    somas = {tipo: {"segundos": 0, "pausas": 0, "energia_z": [], "f0_z": []} for tipo in TIPOS}
+    for tipo, e, f in zip(tipos, energia, f0):
+        if tipo is None:
+            continue
+        somas[tipo]["segundos"] += 1
+        if e is not None:
+            somas[tipo]["energia_z"].append(e)
+        if f is not None:
+            somas[tipo]["f0_z"].append(f)
+    for inicio, fim in pausas:
+        meio = int((inicio + fim) / 2)
+        if meio < n and tipos[meio]:
+            somas[tipos[meio]]["pausas"] += 1
+    return somas
+
+
+def _resumo_voz(somas: dict[str, dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """
+    Pausas por minuto e escore z médio de cada tipo de tela.
+
+    Tipo com menos de 1 minuto de tela fica sem taxa de pausas: 1 pausa em
+    20 segundos daria "3 por minuto" e pareceria um achado.
+    """
+    return {
+        tipo: {
+            "minutos": round(s["segundos"] / 60, 1),
+            "pausas": s["pausas"],
+            "pausas_por_min": round(s["pausas"] / (s["segundos"] / 60), 2) if s["segundos"] >= 60 else None,
+            "energia_z": round(float(np.mean(s["energia_z"])), 3) if s["energia_z"] else None,
+            "f0_z": round(float(np.mean(s["f0_z"])), 3) if s["f0_z"] else None,
+        }
+        for tipo, s in somas.items()
+    }
+
+
 def _frases(segmento: dict[str, Any]) -> list[dict[str, Any]]:
     """
-    Corta um trecho do Whisper em frases, cada uma com o seu tempo (igual à etapa 2).
+    Corta um trecho do Whisper em frases, cada uma com o seu tempo.
 
     Nas palestras o trecho costuma ser curto, mas às vezes passa de 40
     palavras, e texto longo empurra o VADER para os extremos. O Whisper só
@@ -148,13 +245,19 @@ def _frases(segmento: dict[str, Any]) -> list[dict[str, Any]]:
     ]
 
 
-def _frases_da_palestra(transcricao: dict[str, Any], por_segundo: list[str | None]) -> list[dict[str, Any]]:
-    """Anota cada frase falada com palavras, sentimento, ferramentas e o tipo de tela no meio dela."""
+def _frases_da_palestra(
+    transcricao: dict[str, Any], por_segundo: list[str | None], curvas: dict[str, list] | None
+) -> list[dict[str, Any]]:
+    """
+    Anota cada frase falada com palavras, sentimento, ferramentas, o tipo de
+    tela no meio dela e a voz (energia e F0 em escore z dentro da palestra).
+    """
     vader = _vader()
     anotadas = []
     for frase in (f for segmento in transcricao["segmentos"] for f in _frases(segmento)):
         palavras = len(frase["texto"].split())
         meio = int((frase["inicio"] + frase["fim"]) / 2)
+        energia, f0 = _voz_da_frase(curvas, frase["inicio"], frase["fim"]) if curvas else (None, None)
         anotadas.append({
             **frase,
             "palavras": palavras,
@@ -162,7 +265,12 @@ def _frases_da_palestra(transcricao: dict[str, Any], por_segundo: list[str | Non
             "avaliado": palavras >= config.MIN_PALAVRAS_FRASE,
             "ferramentas": ferramentas_em(frase["texto"]),
             "tela": por_segundo[meio] if meio < len(por_segundo) else None,
+            "energia_db": energia,
+            "f0_hz": f0,
         })
+    for chave in ("energia_db", "f0_hz"):
+        for frase, z in zip(anotadas, _escore_z([a[chave] for a in anotadas])):
+            frase[f"{chave}_z"] = z
     return anotadas
 
 
@@ -205,12 +313,12 @@ def comparar_legenda(frases: list[dict[str, Any]], legenda: list[dict[str, Any]]
 
 
 # ---------------------------------------------------------------------------
-# Vocabulário e etapas anteriores
+# Vocabulário e o texto das issues
 # ---------------------------------------------------------------------------
 
 
 def _vocabulario(textos: list[str]) -> list[tuple[str, int]]:
-    """Lemas com spaCy, com o mesmo filtro das etapas 1 e 2."""
+    """Lemas com spaCy, com o filtro da etapa 1 e a correção de config.CORRECAO_LEMA."""
     import spacy
 
     nlp = spacy.load(config.MODELO_SPACY, disable=["ner", "parser"])
@@ -228,45 +336,54 @@ def _vocabulario(textos: list[str]) -> list[tuple[str, int]]:
     return lemas.most_common(config.TOP_N * 3)
 
 
-def _analise_etapa2() -> dict[str, Any]:
-    if not config.ARQ_ETAPA2_FALA.exists():
-        return {}
-    with config.ARQ_ETAPA2_FALA.open(encoding="utf-8") as arquivo:
-        return json.load(arquivo)
-
-
-def _etapa1() -> dict[str, Any]:
+def _issues() -> dict[str, Any]:
     """
-    O texto das issues do GitHub (etapa 1), frase a frase, como a etapa 2
-    recontou: mesma unidade da fala e o Cursor escrito sozinho incluído
-    (ver o diário de bordo da etapa 2). Lido do resultado da etapa 2, para a
-    regra existir num lugar só.
+    O texto das issues do GitHub (etapa 1), FRASE A FRASE: a mesma unidade da fala.
+
+    A etapa 1 deu uma nota para cada issue inteira (mediana de 311 palavras).
+    O compound do VADER soma a nota de todas as palavras e espreme a soma
+    entre -1 e +1, então texto longo vai para perto dos extremos: só 4% das
+    issues saíram neutras. Para comparar com a fala, o texto é cortado em
+    frases pela mesma regra (RE_FRASE), com o mesmo mínimo de palavras, e as
+    ferramentas são contadas por frase, com a regra da escrita para o Cursor.
     """
-    texto = _analise_etapa2().get("etapa1")
-    if not texto:
+    if not config.ARQ_ETAPA1_CORPUS.exists():
         return {}
+    with config.ARQ_ETAPA1_CORPUS.open(encoding="utf-8") as arquivo:
+        corpus = json.load(arquivo)
+    frases = [
+        f.strip()
+        for doc in corpus
+        for f in RE_FRASE.split(f"{doc.get('titulo', '')}. {doc.get('texto_limpo', '')}")
+        if f.strip()
+    ]
+    vader = _vader()
+    notas = [vader.polarity_scores(f)["compound"] for f in frases if len(f.split()) >= config.MIN_PALAVRAS_FRASE]
+    ferramentas = Counter(nome for f in frases for nome, padrao in REGEX_ESCRITA.items() if padrao.search(f))
     return {
-        "volume": f"{texto['documentos']} issues",
-        "frases_avaliadas": texto["frases_avaliadas"],
-        "ferramentas": texto["ferramentas"],
-        "distribuicao": texto["distribuicao"],
-        "media": texto["media"],
+        "volume": f"{len(corpus)} issues",
+        "frases": len(frases),
+        "frases_avaliadas": len(notas),
+        "ferramentas": dict(ferramentas.most_common()),
+        "distribuicao": dict(Counter(classificar(n) for n in notas)),
+        "media": round(float(np.mean(notas)), 4) if notas else None,
     }
 
 
-def _etapa2() -> dict[str, Any]:
-    """A fala dos podcasts (etapa 2)."""
-    fala = _analise_etapa2()
-    if not fala:
-        return {}
-    est = fala["estatisticas"]
-    return {
-        "volume": f"{est['episodios']} episódios, {est['horas_audio']:.1f} h".replace(".", ","),
-        "frases_avaliadas": est["frases_avaliadas"],
-        "ferramentas": fala["ferramentas"]["mencoes"],
-        "distribuicao": fala["sentimento"]["distribuicao"],
-        "media": fala["sentimento"]["media"],
-    }
+def _voz_x_sentimento(frases: list[dict[str, Any]]) -> dict[str, Any]:
+    """Spearman entre o sentimento da frase e a voz, e a voz média de cada classe de sentimento."""
+    avaliadas = [f for f in frases if f["avaliado"]]
+    resultado = {}
+    for chave in ("energia_db_z", "f0_hz_z"):
+        pares = [(f["compound"], f[chave]) for f in avaliadas if f.get(chave) is not None]
+        por_classe = defaultdict(list)
+        for compound, z in pares:
+            por_classe[classificar(compound)].append(z)
+        resultado[chave] = {
+            "spearman": _spearman([p[0] for p in pares], [p[1] for p in pares]),
+            "media_por_classe": {c: round(float(np.mean(v)), 3) for c, v in por_classe.items()},
+        }
+    return resultado
 
 
 # ---------------------------------------------------------------------------
@@ -293,9 +410,10 @@ def analisar(
     visual: dict[str, Any],
     lidas: dict[str, Any],
     transcricoes: dict[str, Any],
+    acustica: dict[str, Any],
     salvar: bool = True,
 ) -> dict[str, Any]:
-    """Cruza tela, fala e legenda de todas as palestras já processadas."""
+    """Cruza tela, voz, fala e legenda de todas as palestras já processadas."""
     por_palestra: dict[str, Any] = {}
     todas: list[dict[str, Any]] = []
     tempo_por_tipo: Counter[str] = Counter()
@@ -307,14 +425,23 @@ def analisar(
     exemplos: list[dict[str, Any]] = []
     textos_fala: list[str] = []
     textos_tela: list[str] = []
+    voz_total = {tipo: {"segundos": 0, "pausas": 0, "energia_z": [], "f0_z": []} for tipo in TIPOS}
 
     for palestra in palestras:
         pid = palestra["id"]
         v, l, t = visual.get("palestras", {}).get(pid), lidas.get(pid), transcricoes.get(pid)
         if not (v and l and t):
             continue
+        som = acustica.get("palestras", {}).get(pid)
         por_segundo = tipo_por_segundo(v, l)
-        frases = _frases_da_palestra(t, por_segundo)
+        frases = _frases_da_palestra(t, por_segundo, som["curvas"] if som else None)
+        voz = voz_por_tipo(por_segundo, som["curvas"], som["pausas"]) if som else None
+        if voz:
+            for tipo, s in voz.items():
+                for chave in ("segundos", "pausas"):
+                    voz_total[tipo][chave] += s[chave]
+                for chave in ("energia_z", "f0_z"):
+                    voz_total[tipo][chave].extend(s[chave])
         legenda = leitura.ler_legenda(palestra)
         comparacao = comparar_legenda(frases, legenda, palestra["titulo"])
 
@@ -352,6 +479,8 @@ def analisar(
                 "fala": dict(ocorrencias(texto_fala)),
                 "legenda": dict(ocorrencias(texto_legenda)),
             },
+            "acustica": som["resumo"] if som else {},
+            "voz_por_tipo": _resumo_voz(voz) if voz else {},
         }
         tempo = por_palestra[pid]["tempo_por_tipo"]
         print(
@@ -361,7 +490,7 @@ def analisar(
         )
 
     validos = sum(tempo_por_tipo.values()) or 1
-    # Os exemplos da palestra da demo vêm primeiro: são os que a turma vê ao vivo na opção 5.
+    # Os exemplos da palestra da demo vêm primeiro: são os que a turma vê ao vivo na opção 7.
     titulo_demo = por_palestra.get(config.DEMO_PALESTRA, {}).get("titulo")
     exemplos.sort(key=lambda e: e["palestra"] != titulo_demo)
     extremas = sorted(
@@ -370,6 +499,7 @@ def analisar(
         if 10 <= f["palavras"] <= 40 and abs(f["compound"]) >= 0.6
     )
     nomes = sorted(set(na_tela) | set(na_fala) | set(na_legenda), key=lambda n: -(na_tela[n] + na_fala[n] + na_legenda[n]))
+    com_som = [p["acustica"] for p in por_palestra.values() if p["acustica"]]
 
     resultado = {
         "estatisticas": {
@@ -383,15 +513,19 @@ def analisar(
             "frases_avaliadas": sum(f["avaliado"] for f in todas),
             "wpm_medio": round(float(np.mean([p["wpm"] for p in por_palestra.values() if p["wpm"]])), 1) if por_palestra else 0,
             "rosto_pct_medio": round(float(np.mean([p["visual"]["rosto_pct"] for p in por_palestra.values()])), 1) if por_palestra else 0,
+            "silencio_pct_medio": round(float(np.mean([a["silencio_pct"] for a in com_som])), 1) if com_som else None,
+            "pausas_por_min_medio": round(float(np.mean([a["pausas_por_min"] for a in com_som])), 2) if com_som else None,
         },
         "tipos": {
             "tempo_pct": {tipo: round(tempo_por_tipo.get(tipo, 0) / validos * 100, 1) for tipo in TIPOS},
             "wpm": {tipo: _wpm([f for f in todas if f["tela"] == tipo]) for tipo in TIPOS},
             "sentimento": {tipo: _distribuicao([f for f in todas if f["tela"] == tipo]) for tipo in TIPOS},
+            "voz": _resumo_voz(voz_total) if com_som else {},
         },
+        "voz_x_sentimento": _voz_x_sentimento(todas) if com_som else {},
         "ferramentas": {
             "por_fonte": {n: {"tela": na_tela[n], "fala": na_fala[n], "legenda": na_legenda[n]} for n in nomes},
-            # Frases que citam cada ferramenta: a unidade da etapa 2, para o painel das três etapas.
+            # Frases que citam cada ferramenta: a mesma unidade do texto das issues no painel final.
             "mencoes_fala": dict(Counter(nome for f in todas for nome in f["ferramentas"]).most_common()),
             "legenda": {"ganhos": dict(ganhos), "perdas": dict(perdas), "exemplos": exemplos[:12]},
         },
@@ -400,20 +534,20 @@ def analisar(
             "fala": _vocabulario(textos_fala) if textos_fala else [],
             "tela": _vocabulario(textos_tela) if textos_tela else [],
         },
-        "tres_etapas": {},
+        "painel_final": {},
         "por_palestra": por_palestra,
         # Só números por frase: o texto completo fica em dados/brutos.
         "frases": [
-            {k: f[k] for k in ("palestra", "inicio", "fim", "palavras", "compound", "avaliado", "ferramentas", "tela")}
+            {k: f[k] for k in ("palestra", "inicio", "fim", "palavras", "compound", "avaliado", "ferramentas", "tela",
+                               "energia_db_z", "f0_hz_z")}
             for f in todas
         ],
         "exemplos_negativos": [{"nota": round(n, 3), "texto": t, "palestra": p} for n, t, p in extremas[:5]],
         "exemplos_positivos": [{"nota": round(n, 3), "texto": t, "palestra": p} for n, t, p in extremas[-5:][::-1]],
     }
-    resultado["tres_etapas"] = {
-        "texto": _etapa1(),
-        "fala": _etapa2(),
-        "video": {
+    resultado["painel_final"] = {
+        "issues": _issues(),
+        "palestras": {
             "volume": f"{resultado['estatisticas']['palestras']} palestras, {resultado['estatisticas']['horas_video']:.1f} h".replace(".", ","),
             "frases_avaliadas": resultado["estatisticas"]["frases_avaliadas"],
             "ferramentas": resultado["ferramentas"]["mencoes_fala"],
@@ -452,15 +586,21 @@ ROTULOS = {
     "frases_avaliadas": "frases avaliadas pelo VADER",
     "wpm_medio": "palavras por minuto (média)",
     "rosto_pct_medio": "rosto na câmera (% do tempo)",
+    "silencio_pct_medio": "silêncio (% do tempo, média)",
+    "pausas_por_min_medio": "pausas longas por min (média)",
 }
+
+
+def _z(valor: float | None) -> str:
+    return f"{valor:+.2f}" if valor is not None else "-"
 
 
 def imprimir(analise: dict[str, Any]) -> None:
     """Mostra o resultado no terminal, formatado para a apresentação."""
     if not analise:
-        print("  Nenhuma análise salva. Rode a opção 7 primeiro.")
+        print("  Nenhuma análise salva. Rode a opção 9 primeiro.")
         return
-    print("\n  O VÍDEO EM NÚMEROS")
+    print("\n  ÁUDIO E VÍDEO EM NÚMEROS")
     print("  " + "-" * 56)
     for chave, valor in analise["estatisticas"].items():
         print(f"    {ROTULOS.get(chave, chave.replace('_', ' ')):.<32} {valor}")
@@ -473,6 +613,27 @@ def imprimir(analise: dict[str, Any]) -> None:
         wpm = analise["tipos"]["wpm"][tipo]
         media = f"{sent['media']:+.3f}" if sent["media"] is not None else "-"
         print(f"    {tipo:<11}{analise['tipos']['tempo_pct'][tipo]:>7.1f}%{wpm or 0:>8.0f}{media:>11}")
+
+    voz = analise["tipos"].get("voz") or {}
+    if voz:
+        print("\n  A VOZ POR TIPO DE TELA (escore z dentro de cada palestra)")
+        print("  " + "-" * 56)
+        print(f"    {'tela':<11}{'minutos':>9}{'pausas/min':>12}{'energia z':>11}{'F0 z':>8}")
+        for tipo in TIPOS:
+            v = voz[tipo]
+            taxa = f"{v['pausas_por_min']:.2f}" if v["pausas_por_min"] is not None else "-"
+            print(f"    {tipo:<11}{v['minutos']:>9.1f}{taxa:>12}{_z(v['energia_z']):>11}{_z(v['f0_z']):>8}")
+        print("\n    sentimento da frase x voz (Spearman, frases avaliadas):")
+        for chave, rotulo in (("energia_db_z", "energia"), ("f0_hz_z", "F0")):
+            item = analise["voz_x_sentimento"].get(chave) or {}
+            s = item.get("spearman")
+            if not s:
+                continue
+            classes = item["media_por_classe"]
+            print(
+                f"      {rotulo:<8} rho {s['rho']:+.3f} (p = {s['p']:#.2g}, {s['n']} frases)  z médio: "
+                + "  ".join(f"{c} {_z(classes.get(c))}" for c in ("positivo", "neutro", "negativo"))
+            )
 
     print("\n  FERRAMENTAS: TELA (OCR) x FALA (nosso Whisper) x LEGENDA OFICIAL")
     print("  " + "-" * 56)
@@ -488,17 +649,17 @@ def imprimir(analise: dict[str, Any]) -> None:
         print(f"      nosso:   {item['nosso'][:110]}")
         print(f"      oficial: {item['oficial'][:110]}")
 
-    print(f"\n  AS TRÊS ETAPAS LADO A LADO (sentimento frase a frase, {config.MIN_PALAVRAS_FRASE} palavras ou mais)")
+    print(f"\n  O ESCRITO E O FALADO (sentimento frase a frase, {config.MIN_PALAVRAS_FRASE} palavras ou mais)")
     print("  " + "-" * 56)
-    for chave, rotulo in (("texto", "texto (etapa 1)"), ("fala", "fala (etapa 2)"), ("video", "vídeo (etapa 3)")):
-        etapa = analise["tres_etapas"].get(chave) or {}
-        if not etapa:
-            print(f"    {rotulo:<17} (sem dados)")
+    for chave, rotulo in (("issues", "issues (escrito)"), ("palestras", "palestras (falado)")):
+        fonte = analise["painel_final"].get(chave) or {}
+        if not fonte:
+            print(f"    {rotulo:<19} (sem dados)")
             continue
-        dist = etapa["distribuicao"]
-        topo = max(etapa["ferramentas"], key=etapa["ferramentas"].get) if etapa["ferramentas"] else "-"
+        dist = fonte["distribuicao"]
+        topo = max(fonte["ferramentas"], key=fonte["ferramentas"].get) if fonte["ferramentas"] else "-"
         print(
-            f"    {rotulo:<17} {etapa['volume']:<24} positivo {_pct(dist, 'positivo'):>4.0f}%  "
+            f"    {rotulo:<19} {fonte['volume']:<22} positivo {_pct(dist, 'positivo'):>4.0f}%  "
             f"negativo {_pct(dist, 'negativo'):>4.0f}%  mais citada: {topo}"
         )
     print()
@@ -514,8 +675,8 @@ def buscar(
     """
     Busca por regex na fala e no texto lido da tela, com o segundo de cada achado.
 
-    É a KWIC das etapas anteriores com duas fontes: o que foi DITO (Whisper)
-    e o que estava ESCRITO no slide (OCR).
+    É a KWIC da etapa 1 com duas fontes: o que foi DITO (Whisper) e o que
+    estava ESCRITO no slide (OCR).
     """
     nomes = {p["id"]: p for p in palestras}
     achados = []
@@ -540,6 +701,8 @@ def buscar(
 if __name__ == "__main__":
     import coleta
     import quadros
+    import sinal
 
     eps = coleta.selecionar()
-    imprimir(analisar(eps, quadros.carregar_analise(), leitura.carregar_leitura(), leitura.carregar_transcricoes(eps)))
+    imprimir(analisar(eps, quadros.carregar_analise(), leitura.carregar_leitura(),
+                      leitura.carregar_transcricoes(eps), sinal.carregar_analise()))

@@ -8,8 +8,8 @@ Três fontes de texto para cada palestra, todas com marca de tempo:
    usa duas redes neurais: a primeira acha ONDE há texto na imagem
    (detecção, devolve caixas) e a segunda lê cada caixa (reconhecimento,
    devolve o texto e uma confiança de 0 a 1).
-2. A FALA, transcrita pelo Whisper com a lista de vocabulário, como na
-   etapa 2. O áudio sai do próprio arquivo de vídeo.
+2. A FALA, transcrita pelo Whisper com uma lista de vocabulário (os nomes
+   das ferramentas). O áudio sai do próprio arquivo de vídeo.
 3. A LEGENDA OFICIAL da FOSDEM (arquivo .vtt). Ela também sai de um
    reconhecimento automático de fala, mas sem lista de vocabulário.
    Comparar as duas mede, em dados novos, o efeito da lista.
@@ -196,8 +196,8 @@ _DISPOSITIVO = "cpu"
 
 def _bibliotecas_cuda() -> bool:
     """
-    Põe as DLLs da NVIDIA no caminho de busca do Windows (mesma função da
-    etapa 2). Os pacotes nvidia-cublas-cu12 e nvidia-cudnn-cu12 do pip
+    Põe as DLLs da NVIDIA no caminho de busca do Windows, para o Whisper
+    rodar na GPU. Os pacotes nvidia-cublas-cu12 e nvidia-cudnn-cu12 do pip
     trazem as DLLs numa pasta que o Windows não procura sozinho.
     """
     if sys.platform != "win32":
@@ -253,14 +253,14 @@ def carregar_modelo():
 
 
 def audio(palestra: dict[str, Any]) -> np.ndarray:
-    """O áudio do vídeo como vetor de amostras a 16 kHz, mono (o formato do Whisper)."""
+    """O áudio do vídeo a 16 kHz, mono: a entrada do Whisper e do sinal.py (librosa)."""
     from faster_whisper.audio import decode_audio
 
     return decode_audio(str(coleta.caminho_video(palestra)), sampling_rate=config.TAXA_AMOSTRAGEM)
 
 
 def transcrever(sinal: np.ndarray, vocabulario: str | None = config.PROMPT_VOCABULARIO) -> list[dict[str, Any]]:
-    """Transcreve um vetor de amostras e devolve os segmentos com tempo (igual à etapa 2)."""
+    """Transcreve um vetor de amostras e devolve os segmentos com tempo."""
     segmentos, _ = carregar_modelo().transcribe(
         sinal,
         language="en",

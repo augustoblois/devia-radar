@@ -1,20 +1,22 @@
 """
-Etapa 3 - VISUALIZAÇÃO, DASHBOARD E PAINEL DAS TRÊS ETAPAS.
+Etapa 3 - VISUALIZAÇÃO, DASHBOARD E PAINEL FINAL.
 
-Mesmo padrão das etapas 1 e 2: todo gráfico sai como PNG na pasta `saida/`,
+Mesmo padrão da etapa 1: todo gráfico sai como PNG na pasta `saida/`,
 pronto para o slide, com o backend "Agg" do matplotlib (desenha direto no
 arquivo, sem abrir janela que travaria a apresentação).
 
 Gráficos gerados:
   01  mosaico das telas de cada palestra, coloridas pelo tipo
   02  do vídeo aos números: quadro, regiões, diferença, bordas e rostos
-  03  linha do tempo de uma palestra (tela, fala e câmera)
-  04  perfil visual de cada palestra
-  05  ferramentas: tela x fala x legenda oficial
-  06  a fala acompanha a tela? (velocidade e sentimento por tipo de tela)
-  07  o que está escrito x o que é dito (nuvens de palavras)
-  08  painel da etapa 3 (dashboard)
-  09  painel final das três etapas: texto, fala e vídeo
+  03  do som aos números: onda, energia, espectrograma Mel, F0 e MFCC
+  04  linha do tempo de uma palestra (tela, fala, voz e câmera)
+  05  perfil de cada palestra (tela, ritmo, câmera e pausas)
+  06  ferramentas: tela x fala x legenda oficial
+  07  a fala acompanha a tela? (velocidade e sentimento por tipo de tela)
+  08  a voz acompanha a tela? (pausas, energia e altura por tipo de tela)
+  09  o que está escrito x o que é dito (nuvens de palavras)
+  10  painel da etapa 3 (dashboard)
+  11  painel final: o escrito (issues do GitHub) x o falado (palestras)
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Patch, Rectangle
-from matplotlib.ticker import FuncFormatter, ScalarFormatter
+from matplotlib.ticker import ScalarFormatter
 
 import config
 
@@ -61,21 +63,34 @@ def _classe(compound: float) -> str:
 
 
 def _num(valor: float, casas: int = 0, sinal: bool = False) -> str:
-    """Número escrito em português: vírgula decimal e ponto no milhar (igual à etapa 2)."""
+    """Número escrito em português: vírgula decimal, ponto no milhar e o sinal de menos tipográfico."""
     texto = f"{valor:{'+' if sinal else ''},.{casas}f}"
-    return texto.replace(",", "X").replace(".", ",").replace("X", ".")
+    return texto.replace(",", "X").replace(".", ",").replace("X", ".").replace("-", "−")
 
 
-# Marcas dos eixos numéricos com vírgula decimal (0,5 em vez de 0.5).
-VIRGULA = FuncFormatter(lambda valor, _: f"{valor:g}".replace(".", ","))
+class Virgula(ScalarFormatter):
+    """
+    Marcas dos eixos numéricos com vírgula decimal (0,5 em vez de 0.5).
+
+    Herda o formatador padrão do matplotlib para manter as mesmas casas
+    decimais em todas as marcas de um eixo (0,10 ao lado de 0,15, e não
+    0,1) e o sinal de menos tipográfico.
+    """
+
+    def __init__(self) -> None:
+        super().__init__(useOffset=False)
+
+    def __call__(self, valor, posicao=None):
+        return super().__call__(valor, posicao).replace(".", ",")
 
 
 def _salvar(figura, nome: str) -> Path:
     # Só troca o formatador padrão: eixo de categoria tem formatador próprio.
+    # Um formatador por eixo, porque ele guarda as marcas do eixo dele.
     for eixo in figura.axes:
         for eixo_xy in (eixo.xaxis, eixo.yaxis):
             if type(eixo_xy.get_major_formatter()) is ScalarFormatter:
-                eixo_xy.set_major_formatter(VIRGULA)
+                eixo_xy.set_major_formatter(Virgula())
     caminho = config.DIR_SAIDA / nome
     figura.savefig(caminho, facecolor="white")
     plt.close(figura)
@@ -127,7 +142,7 @@ def mosaico_telas(palestras: list[dict[str, Any]], visual: dict[str, Any], lidas
     """Oito telas de cada palestra, espalhadas do começo ao fim, com a moldura na cor do tipo."""
     linhas = [p for p in palestras if p["id"] in lidas and p["id"] in visual.get("palestras", {})]
     if not linhas:
-        print("    [pulado] 01 precisa das telas lidas (opções 4 e 6)")
+        print("    [pulado] 01 precisa das telas lidas (opções 4 e 8)")
         return None
     figura, eixos = plt.subplots(len(linhas), por_linha, figsize=(16, 1.32 * len(linhas) + 1.0))
     eixos = np.atleast_2d(eixos)
@@ -245,24 +260,102 @@ def figura_quadro(demo: dict[str, Any]) -> Path:
 
 
 # ---------------------------------------------------------------------------
-# 03 Linha do tempo de uma palestra
+# 03 Do som aos números (um trecho)
 # ---------------------------------------------------------------------------
 
 
-def linha_do_tempo(analise: dict[str, Any], visual: dict[str, Any], lidas: dict[str, Any], palestra_id: str) -> Path | None:
+def figura_som(amostras: np.ndarray, medidas: dict[str, np.ndarray], pausas: list[tuple[float, float]],
+               palestra: dict[str, Any], inicio: float) -> Path:
+    """
+    O mesmo trecho de som desenhado quatro vezes, uma camada de análise por linha.
+
+    Todas as linhas dividem o mesmo eixo de tempo, então dá para apontar
+    uma pausa na onda e ver o buraco correspondente no espectrograma.
+    """
+    import librosa.display
+
+    import sinal
+
+    sr = config.TAXA_AMOSTRAGEM
+    tempo = np.arange(len(amostras)) / sr
+    tempo_quadros = np.arange(medidas["energia_db"].size) * config.SALTO / sr
+
+    figura, eixos = plt.subplots(4, 1, figsize=(12, 10.5), sharex=True, gridspec_kw={"height_ratios": [1, 0.8, 1.5, 1.1]})
+
+    eixos[0].plot(tempo, amostras, color=config.PALETA["voz"], linewidth=0.4)
+    for inicio_p, fim_p in pausas:
+        eixos[0].axvspan(inicio_p, fim_p, color=config.PALETA["neutro"], alpha=0.3, linewidth=0)
+    eixos[0].set_ylabel("amplitude")
+    eixos[0].set_title(f"1. Forma de onda: {_num(len(amostras))} amostras ({_num(sr)} por segundo). "
+                       f"Faixas cinza = pausas longas (≥ {_num(config.PAUSA_LONGA, 1)} s)",
+                       loc="left", fontweight="bold", fontsize=10)
+
+    eixos[1].plot(tempo_quadros, medidas["energia_db"], color=config.PALETA["voz"], linewidth=0.9)
+    pelo_pico = float(medidas["energia_db"].max()) - config.TOP_DB_SILENCIO
+    limiar = sinal.limiar_silencio(medidas["energia_db"])
+    regra = (f"{config.TOP_DB_SILENCIO} dB abaixo do pico" if limiar == pelo_pico
+             else f"{config.MARGEM_RUIDO} dB acima do ruído de fundo")
+    eixos[1].axhline(limiar, color=config.PALETA["negativo"], linestyle="--", linewidth=1)
+    eixos[1].set_ylabel("energia (dB)")
+    # A regra do limiar vai no título: escrita junto da linha, cobria a curva.
+    eixos[1].set_title(f"2. Energia RMS por quadro de 25 ms · tracejado = limiar de silêncio ({regra})",
+                       loc="left", fontweight="bold", fontsize=10)
+
+    # O mel_db não tem piso (ver sinal.caracteristicas). Para o desenho, a
+    # escala de cor termina 80 dB abaixo do máximo, e o silêncio fica preto.
+    librosa.display.specshow(medidas["mel_db"], sr=sr, hop_length=config.SALTO, x_axis="time", y_axis="mel",
+                             fmax=sr // 2, ax=eixos[2], cmap="magma", vmin=medidas["mel_db"].max() - 80)
+    f0 = np.where(medidas["sonoro"], medidas["f0"], np.nan)
+    eixos[2].plot(tempo_quadros, f0, color="#7FDBFF", linewidth=1.6)
+    eixos[2].set_ylabel("frequência (Hz, escala Mel)")
+    eixos[2].set_xlabel("")  # o specshow escreve "Time" sozinho; o eixo é o de baixo
+    eixos[2].set_title(f"3. Espectrograma Mel ({config.N_MELS} bandas): cor clara = mais energia naquela frequência · "
+                       "linha azul = F0 (altura da voz, YIN)", loc="left", fontweight="bold", fontsize=10)
+
+    # Cada coeficiente em escore z ao longo do trecho. O primeiro mede a
+    # energia geral e vale centenas: cru, ele toma a escala de cor e o resto some.
+    mfcc = medidas["mfcc"]
+    mfcc_z = (mfcc - mfcc.mean(axis=1, keepdims=True)) / mfcc.std(axis=1, keepdims=True)
+    librosa.display.specshow(mfcc_z, sr=sr, hop_length=config.SALTO, x_axis="time", ax=eixos[3], cmap="coolwarm",
+                             vmin=-3, vmax=3)
+    eixos[3].set_ylabel("coeficiente")
+    eixos[3].set_yticks(range(0, config.N_MFCC, 2))
+    eixos[3].set_xlabel("segundos do trecho")
+    eixos[3].set_title(f"4. MFCC: {config.N_MFCC} números por quadro, a impressão digital do timbre (cada linha em escore z)",
+                       loc="left", fontweight="bold", fontsize=10)
+
+    for eixo in eixos:
+        eixo.grid(False)
+    minuto, segundo = divmod(int(inicio), 60)
+    figura.suptitle(f"Do som aos números · {_curto(palestra['titulo'], 40)}, {config.TRECHO_DEMO} s a partir de "
+                    f"{minuto}:{segundo:02d}", fontsize=13, fontweight="bold")
+    figura.tight_layout()
+    return _salvar(figura, "03_do_som_aos_numeros.png")
+
+
+# ---------------------------------------------------------------------------
+# 04 Linha do tempo de uma palestra
+# ---------------------------------------------------------------------------
+
+
+def linha_do_tempo(analise: dict[str, Any], visual: dict[str, Any], lidas: dict[str, Any], acustica: dict[str, Any],
+                   palestra_id: str) -> Path | None:
     import conteudo
 
     v = visual.get("palestras", {}).get(palestra_id)
     info = analise["por_palestra"].get(palestra_id)
     if not (v and info and palestra_id in lidas):
-        print("    [pulado] 03 precisa da palestra da demo analisada")
+        print("    [pulado] 04 precisa da palestra da demo analisada")
         return None
     por_segundo = conteudo.tipo_por_segundo(v, lidas[palestra_id])
     frases = [f for f in analise["frases"] if f["palestra"] == palestra_id]
     minutos = np.array(v["serie"]["t"]) / 60
 
-    figura, (topo, meio, baixo) = plt.subplots(3, 1, figsize=(13, 8.4), sharex=True,
-                                              gridspec_kw={"height_ratios": [1.1, 1.2, 0.8]})
+    # Layout "constrained": cada painel ganha só o espaço que o título dele
+    # pede. O tight_layout dava a todos o vão do painel da fala, que tem os
+    # nomes das ferramentas em cima.
+    figura, (topo, meio, voz, baixo) = plt.subplots(4, 1, figsize=(13, 10.6), sharex=True, layout="constrained",
+                                                   gridspec_kw={"height_ratios": [1.1, 1.2, 0.8, 0.8]})
     inicio = 0
     for fim in range(1, len(por_segundo) + 1):
         if fim == len(por_segundo) or por_segundo[fim] != por_segundo[inicio]:
@@ -300,6 +393,19 @@ def linha_do_tempo(analise: dict[str, Any], visual: dict[str, Any], lidas: dict[
     meio.set_title(f"Fala: sentimento de cada frase · {len(citadas)} linhas laranja = frase que cita ferramenta de IA",
                    loc="left", fontweight="bold", pad=40)
 
+    som = acustica.get("palestras", {}).get(palestra_id)
+    if som:
+        energia = np.array([np.nan if e is None else e for e in som["curvas"]["energia_db"]], dtype=float)
+        voz.plot(np.arange(energia.size) / 60, energia, color=config.PALETA["voz"], linewidth=0.7)
+        for inicio_p, fim_p in som["pausas"]:
+            voz.axvspan(inicio_p / 60, fim_p / 60, color=config.PALETA["neutro"], alpha=0.35, linewidth=0)
+        voz.set_ylabel("energia (dB)")
+        voz.set_title(f"Voz: energia da fala a cada segundo · {len(som['pausas'])} faixas cinza = pausas longas "
+                      f"(≥ {_num(config.PAUSA_LONGA, 1)} s)", loc="left", fontweight="bold")
+    else:
+        voz.axis("off")
+        voz.text(0.5, 0.5, "rode a opção 6 para medir o som", ha="center", va="center", transform=voz.transAxes)
+
     rosto = (np.array(v["serie"]["rostos"]) > 0).astype(float)
     movimento = np.convolve(np.array(v["serie"]["dif_camera"], dtype=float), np.ones(15) / 15, mode="same")
     teto = max(float(movimento.max()), 1.0) * 1.35  # folga em cima para a legenda não cobrir a curva
@@ -313,12 +419,11 @@ def linha_do_tempo(analise: dict[str, Any], visual: dict[str, Any], lidas: dict[
     baixo.set_title("Câmera: palestrante visível e movimento", loc="left", fontweight="bold")
 
     figura.suptitle(f"Linha do tempo · {info['titulo'][:80]}", fontsize=12, fontweight="bold")
-    figura.tight_layout()
-    return _salvar(figura, "03_linha_tempo_palestra.png")
+    return _salvar(figura, "04_linha_tempo_palestra.png")
 
 
 # ---------------------------------------------------------------------------
-# 04 Perfil visual de cada palestra
+# 05 Perfil de cada palestra
 # ---------------------------------------------------------------------------
 
 
@@ -327,7 +432,8 @@ def perfil_palestras(analise: dict[str, Any]) -> Path:
     ps = sorted(analise["por_palestra"].values(),
                 key=lambda p: p["tempo_por_tipo"]["código"] + p["tempo_por_tipo"]["interface"])
     nomes = [_curto(p["titulo"]) for p in ps]
-    figura, eixos = plt.subplots(1, 3, figsize=(16, 6), sharey=True, gridspec_kw={"width_ratios": [1.7, 1, 1]})
+    pausas = [p["acustica"].get("pausas_por_min", 0) for p in ps]
+    figura, eixos = plt.subplots(1, 4, figsize=(18, 6), sharey=True, gridspec_kw={"width_ratios": [1.7, 1, 1, 1]})
 
     _empilhado(eixos[0], nomes, [p["tempo_por_tipo"] for p in ps], TIPOS, config.PALETA_TELA)
     eixos[0].set_title("Tempo de vídeo por tipo de tela (%)", fontweight="bold", pad=24)
@@ -338,6 +444,7 @@ def perfil_palestras(analise: dict[str, Any]) -> Path:
          [_num(p["visual"]["telas_por_min"], 1) for p in ps]),
         ("Palestrante visível (% do tempo)", [p["visual"]["rosto_pct"] for p in ps], config.PALETA["video"],
          [f"{p['visual']['rosto_pct']:.0f}%" for p in ps]),
+        ("Pausas longas por minuto", pausas, config.PALETA["voz"], [_num(v, 1) for v in pausas]),
     )):
         barras = eixo.barh(nomes, valores, color=cor)
         eixo.bar_label(barras, labels=rotulos, padding=3, fontsize=8)
@@ -346,14 +453,16 @@ def perfil_palestras(analise: dict[str, Any]) -> Path:
         eixo.grid(axis="y", visible=False)
     eixos[2].set_xlim(0, 118)  # espaço para o rótulo "100%", sem marcar 120% no eixo
     eixos[2].set_xticks([0, 25, 50, 75, 100])
-    figura.suptitle("Perfil visual de cada palestra: o que a tela mostra, em que ritmo, e quanto o palestrante aparece",
+    figura.suptitle("Perfil de cada palestra: o que a tela mostra, em que ritmo, quanto o palestrante aparece e quanto pausa",
                     fontsize=13, fontweight="bold")
-    figura.tight_layout()
-    return _salvar(figura, "04_perfil_palestras.png")
+    # Folga entre os painéis: o "100" do primeiro e o "0,0" do segundo
+    # caem na mesma divisa e encostavam.
+    figura.tight_layout(w_pad=3)
+    return _salvar(figura, "05_perfil_palestras.png")
 
 
 # ---------------------------------------------------------------------------
-# 05 Ferramentas: tela x fala x legenda
+# 06 Ferramentas: tela x fala x legenda
 # ---------------------------------------------------------------------------
 
 
@@ -397,11 +506,11 @@ def ferramentas_fontes(analise: dict[str, Any], eixo=None) -> Path | None:
         nota += f"\nex.: nosso   \"{_corte(exemplo['nosso'])}\"\n     oficial \"{_corte(exemplo['oficial'])}\""
     figura.text(0.01, -0.02, nota, fontsize=9, color="#333", va="top", family="monospace")
     figura.tight_layout()
-    return _salvar(figura, "05_ferramentas_tela_fala_legenda.png")
+    return _salvar(figura, "06_ferramentas_tela_fala_legenda.png")
 
 
 # ---------------------------------------------------------------------------
-# 06 A fala acompanha a tela?
+# 07 A fala acompanha a tela?
 # ---------------------------------------------------------------------------
 
 
@@ -427,11 +536,66 @@ def fala_por_tela(analise: dict[str, Any]) -> Path:
 
     figura.suptitle("A fala acompanha a tela?", fontsize=13, fontweight="bold")
     figura.tight_layout()
-    return _salvar(figura, "06_fala_por_tipo_tela.png")
+    return _salvar(figura, "07_fala_por_tipo_tela.png")
 
 
 # ---------------------------------------------------------------------------
-# 07 Escrito x dito
+# 08 A voz acompanha a tela?
+# ---------------------------------------------------------------------------
+
+
+def _p(valor: float) -> str:
+    return "p < 0,001" if valor < 0.001 else f"p = {_num(valor, 3)}"
+
+
+def voz_por_tela(analise: dict[str, Any]) -> Path | None:
+    """
+    Pausas, energia e altura da voz enquanto a tela mostra cada tipo.
+
+    Energia e F0 estão em escore z dentro de cada palestra: 0 é a voz
+    normal daquela palestra, +0,2 é dois décimos de desvio-padrão acima.
+    """
+    voz = analise["tipos"].get("voz")
+    if not voz:
+        print("    [pulado] 08 precisa do som medido (opção 6) antes da análise (opção 9)")
+        return None
+    tipos = [t for t in TIPOS if voz[t]["pausas_por_min"] is not None]
+    nomes = [f"{t}\n{_num(voz[t]['minutos'])} min" for t in tipos]
+    figura, eixos = plt.subplots(1, 3, figsize=(15, 5.2))
+    paineis = (
+        ("pausas_por_min", f"Pausas longas (≥ {_num(config.PAUSA_LONGA, 1)} s) por minuto", "pausas por minuto", False),
+        ("energia_z", "Energia da voz", "escore z (desvios-padrão)", True),
+        ("f0_z", "Altura da voz (F0)", "escore z (desvios-padrão)", True),
+    )
+    for eixo, (chave, titulo, rotulo, com_sinal) in zip(eixos, paineis):
+        valores = [voz[t][chave] or 0 for t in tipos]
+        barras = eixo.bar(nomes, valores, color=[config.PALETA_TELA[t] for t in tipos])
+        eixo.bar_label(barras, labels=[_num(v, 2, sinal=com_sinal) for v in valores], padding=3, fontsize=9)
+        eixo.set_title(titulo, fontweight="bold")
+        eixo.set_ylabel(rotulo)
+        eixo.margins(y=0.2)
+        eixo.grid(axis="x", visible=False)
+        if com_sinal:
+            eixo.axhline(0, color="#999", linewidth=0.8)
+
+    partes = []
+    for chave, rotulo in (("energia_db_z", "energia"), ("f0_hz_z", "F0")):
+        s = (analise["voz_x_sentimento"].get(chave) or {}).get("spearman")
+        if s:
+            partes.append(f"{rotulo}: rho = {_num(s['rho'], 3, sinal=True)} ({_p(s['p'])})")
+    if partes:
+        n = analise["voz_x_sentimento"]["energia_db_z"]["spearman"]["n"]
+        figura.text(0.01, -0.01, f"Voz x sentimento da frase (Spearman, {_num(n)} frases avaliadas): "
+                    + "  ·  ".join(partes) + ".  rho perto de 0 = sem relação.",
+                    fontsize=9, color="#333", va="top")
+    figura.suptitle("A voz acompanha a tela? (energia e altura em escore z dentro de cada palestra)",
+                    fontsize=13, fontweight="bold")
+    figura.tight_layout()
+    return _salvar(figura, "08_voz_por_tipo_tela.png")
+
+
+# ---------------------------------------------------------------------------
+# 09 Escrito x dito
 # ---------------------------------------------------------------------------
 
 
@@ -456,11 +620,11 @@ def nuvens(analise: dict[str, Any]) -> Path | None:
         eixo.imshow(nuvem, interpolation="bilinear")
         eixo.set_title(titulo, fontweight="bold", fontsize=12)
     figura.tight_layout()
-    return _salvar(figura, "07_escrito_x_dito.png")
+    return _salvar(figura, "09_escrito_x_dito.png")
 
 
 # ---------------------------------------------------------------------------
-# 08 Painel da etapa 3
+# 10 Painel da etapa 3
 # ---------------------------------------------------------------------------
 
 
@@ -479,14 +643,20 @@ def painel(analise: dict[str, Any]) -> Path:
     figura = plt.figure(figsize=(16, 9))
     grade = figura.add_gridspec(2, 3, hspace=0.55, wspace=0.45)
     est = analise["estatisticas"]
-    _cartao(figura.add_subplot(grade[0, 0]), "O vídeo em números", [
+    linhas = [
         ("palestras analisadas", f"{est['palestras']}"),
         ("horas de vídeo", _num(est["horas_video"], 1)),
         ("telas distintas", _num(est["telas"])),
         ("palavras lidas na tela", _num(est["palavras_tela"])),
         ("palavras faladas", _num(est["palavras_fala"])),
         ("palestrante visível", f"{est['rosto_pct_medio']:.0f}% do tempo"),
-    ], config.PALETA["video"])
+    ]
+    if est.get("silencio_pct_medio") is not None:
+        linhas += [
+            ("silêncio (média)", f"{est['silencio_pct_medio']:.0f}% do tempo"),
+            ("pausas longas por minuto", _num(est["pausas_por_min_medio"], 1)),
+        ]
+    _cartao(figura.add_subplot(grade[0, 0]), "Áudio e vídeo em números", linhas, config.PALETA["video"])
 
     eixo = figura.add_subplot(grade[0, 1])
     tempo = analise["tipos"]["tempo_pct"]
@@ -516,25 +686,30 @@ def painel(analise: dict[str, Any]) -> Path:
     eixo.grid(axis="y", visible=False)
 
     eixo = figura.add_subplot(grade[1, 2])
-    ps = sorted(analise["por_palestra"].values(), key=lambda p: p["visual"]["telas_por_min"])
-    eixo.barh([_curto(p["titulo"], 22) for p in ps], [p["visual"]["telas_por_min"] for p in ps], color=config.PALETA["slide"])
-    eixo.set_title("Telas novas por minuto", fontweight="bold")
-    eixo.tick_params(axis="y", labelsize=7)
+    voz = analise["tipos"].get("voz") or {}
+    tipos = [t for t in TIPOS if voz.get(t, {}).get("pausas_por_min") is not None][::-1]
+    barras = eixo.barh(tipos, [voz[t]["pausas_por_min"] for t in tipos], color=[config.PALETA_TELA[t] for t in tipos])
+    # Duas casas, como no gráfico 08: o valor salvo já vem arredondado em
+    # duas, e arredondar de novo mostraria 12,95 como 12,9.
+    eixo.bar_label(barras, labels=[_num(voz[t]["pausas_por_min"], 2) for t in tipos], padding=3, fontsize=8)
+    eixo.set_title("Pausas longas por minuto, por tela", fontweight="bold")
+    eixo.margins(x=0.15)
     eixo.grid(axis="y", visible=False)
 
     figura.suptitle("DevIA Radar · Etapa 3  |  Como desenvolvedores APRESENTAM IA no desenvolvimento de software",
                     fontsize=15, fontweight="bold")
-    return _salvar(figura, "08_painel_dashboard.png")
+    return _salvar(figura, "10_painel_dashboard.png")
 
 
 # ---------------------------------------------------------------------------
-# 09 Painel final das três etapas
+# 11 Painel final: o escrito x o falado
 # ---------------------------------------------------------------------------
 
-ETAPAS = (
-    ("texto", "Texto · etapa 1", "issues do GitHub", "texto"),
-    ("fala", "Fala · etapa 2", "podcasts", "fala"),
-    ("video", "Vídeo · etapa 3", "palestras da FOSDEM", "video"),
+# O falado usa a cor da voz: o verde das palestras é o mesmo do sentimento
+# positivo, e os dois apareceriam lado a lado neste painel.
+FONTES = (
+    ("issues", "Escrito", "issues do GitHub (etapa 1)", "texto"),
+    ("palestras", "Falado", "palestras da FOSDEM (etapa 3)", "voz"),
 )
 
 
@@ -543,20 +718,21 @@ def _participacao(contagem: dict[str, int]) -> dict[str, float]:
     return {nome: qtd / total * 100 for nome, qtd in contagem.items()}
 
 
-def painel_tres_etapas(analise: dict[str, Any]) -> Path | None:
+def painel_final(analise: dict[str, Any]) -> Path | None:
     """
-    O dashboard final prometido no slide 9 da etapa 1: as três modalidades
-    lado a lado, com o mesmo dicionário de ferramentas e o mesmo VADER.
+    O painel final: o texto das issues do GitHub (etapa 1) e a fala das
+    palestras lado a lado, frase a frase, com o mesmo dicionário de
+    ferramentas e o mesmo VADER.
     """
-    etapas = [(chave, titulo, fonte, cor) for chave, titulo, fonte, cor in ETAPAS if analise["tres_etapas"].get(chave)]
-    if len(etapas) < 2:
-        print("    [pulado] 09 precisa de pelo menos duas etapas com resultado")
+    fontes = [(chave, titulo, fonte, cor) for chave, titulo, fonte, cor in FONTES if analise["painel_final"].get(chave)]
+    if len(fontes) < 2:
+        print("    [pulado] 11 precisa do corpus da etapa 1 (etapa1/dados/processados/corpus_limpo.json)")
         return None
     figura = plt.figure(figsize=(16, 9.6))
-    grade = figura.add_gridspec(2, len(etapas), height_ratios=[0.42, 1.25], hspace=0.38, wspace=0.32)
+    grade = figura.add_gridspec(2, len(fontes), height_ratios=[0.42, 1.25], hspace=0.38, wspace=0.32)
 
-    for coluna, (chave, titulo, fonte, cor) in enumerate(etapas):
-        dados = analise["tres_etapas"][chave]
+    for coluna, (chave, titulo, fonte, cor) in enumerate(fontes):
+        dados = analise["painel_final"][chave]
         participacao = _participacao(dados["ferramentas"])
         topo = max(participacao, key=participacao.get) if participacao else "-"
         _cartao(figura.add_subplot(grade[0, coluna]), f"{titulo}: {fonte}", [
@@ -566,39 +742,41 @@ def painel_tres_etapas(analise: dict[str, Any]) -> Path | None:
             ("mais citada", f"{topo} ({participacao.get(topo, 0):.0f}%)"),
         ], config.PALETA[cor])
 
-    meio = len(etapas) - 1
+    meio = len(fontes) - 1
     eixo = figura.add_subplot(grade[1, :meio])
-    participacoes = {chave: _participacao(analise["tres_etapas"][chave]["ferramentas"]) for chave, *_ in etapas}
+    participacoes = {chave: _participacao(analise["painel_final"][chave]["ferramentas"]) for chave, *_ in fontes}
     nomes = sorted({n for p in participacoes.values() for n in p}, key=lambda n: -sum(p.get(n, 0) for p in participacoes.values()))[:7][::-1]
     posicoes = np.arange(len(nomes))
-    altura = 0.8 / len(etapas)
-    for indice, (chave, titulo, _, cor) in enumerate(etapas):
-        deslocamento = (len(etapas) - 1 - indice - (len(etapas) - 1) / 2) * altura
+    altura = 0.8 / len(fontes)
+    for indice, (chave, titulo, _, cor) in enumerate(fontes):
+        deslocamento = (len(fontes) - 1 - indice - (len(fontes) - 1) / 2) * altura
         barras = eixo.barh(posicoes + deslocamento, [participacoes[chave].get(n, 0) for n in nomes], altura,
                            color=config.PALETA[cor], label=titulo)
         eixo.bar_label(barras, fmt="%.0f%%", padding=2, fontsize=7)
     eixo.set_yticks(posicoes, nomes)
     eixo.set_xlabel("participação no total de menções a ferramentas (%)")
-    eixo.set_title("Quais ferramentas de IA cada modalidade cita", fontweight="bold")
+    eixo.set_title("Quais ferramentas de IA cada fonte cita", fontweight="bold")
     eixo.legend(loc="lower right", frameon=False)
     eixo.margins(x=0.12)
     eixo.grid(axis="y", visible=False)
 
     eixo = figura.add_subplot(grade[1, meio])
-    rotulos = [titulo for _, titulo, _, _ in etapas][::-1]
-    _empilhado(eixo, rotulos, [analise["tres_etapas"][c]["distribuicao"] for c, *_ in etapas][::-1],
+    rotulos = [titulo for _, titulo, _, _ in fontes][::-1]
+    _empilhado(eixo, rotulos, [analise["painel_final"][c]["distribuicao"] for c, *_ in fontes][::-1],
                ORDEM_SENTIMENTO, config.PALETA)
     eixo.set_title("Sentimento (VADER)", fontweight="bold", pad=24)
     eixo.legend(loc="lower center", bbox_to_anchor=(0.5, 1.0), ncols=3, frameon=False, fontsize=8)
     eixo.set_xlabel("percentual")
 
-    figura.suptitle("DevIA Radar · as três etapas juntas: como desenvolvedores ESCREVEM, FALAM e APRESENTAM IA",
+    figura.suptitle("DevIA Radar · o escrito e o falado: como desenvolvedores ESCREVEM e APRESENTAM IA",
                     fontsize=15, fontweight="bold")
-    return _salvar(figura, "09_painel_tres_etapas.png")
+    return _salvar(figura, "11_painel_issues_x_palestras.png")
 
 
-def gerar_todos(analise: dict[str, Any], visual: dict[str, Any], lidas: dict[str, Any], palestras: list[dict[str, Any]]) -> None:
+def gerar_todos(analise: dict[str, Any], visual: dict[str, Any], lidas: dict[str, Any], acustica: dict[str, Any],
+                palestras: list[dict[str, Any]]) -> None:
     import quadros
+    import sinal
 
     print("  gerando gráficos em saida/ ...")
     mosaico_telas(palestras, visual, lidas)
@@ -607,11 +785,17 @@ def gerar_todos(analise: dict[str, Any], visual: dict[str, Any], lidas: dict[str
         figura_quadro(demo)
     else:
         print("    [pulado] 02 precisa do vídeo no disco (opção 1)")
-    linha_do_tempo(analise, visual, lidas, demo["palestra"]["id"] if demo else config.DEMO_PALESTRA)
+    trecho = sinal.preparar_trecho(palestras)
+    if trecho:
+        figura_som(*trecho)
+    else:
+        print("    [pulado] 03 precisa do vídeo no disco (opção 1)")
+    linha_do_tempo(analise, visual, lidas, acustica, demo["palestra"]["id"] if demo else config.DEMO_PALESTRA)
     perfil_palestras(analise)
     ferramentas_fontes(analise)
     fala_por_tela(analise)
+    voz_por_tela(analise)
     nuvens(analise)
     painel(analise)
-    painel_tres_etapas(analise)
+    painel_final(analise)
     print(f"  pronto: {config.DIR_SAIDA}")
