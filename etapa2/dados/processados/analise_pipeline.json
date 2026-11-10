@@ -1,0 +1,144 @@
+{
+ "estatisticas": {
+  "issues": 979,
+  "tokens": 1033315,
+  "frases": 39279,
+  "frases_avaliadas": 34460,
+  "frases_com_ferramenta": 2079,
+  "palavras_por_frase_mediana": 15,
+  "frases_acima_300_palavras": 28
+ },
+ "pipeline": [
+  "tokenizer",
+  "tok2vec",
+  "tagger",
+  "parser",
+  "attribute_ruler",
+  "lemmatizer",
+  "entity_ruler",
+  "ner",
+  "vader"
+ ],
+ "ferramentas": {
+  "frases": {
+   "ChatGPT": 713,
+   "Claude": 679,
+   "Cursor": 505,
+   "GitHub Copilot": 307,
+   "Gemini": 95,
+   "Codeium": 77,
+   "Ollama": 77,
+   "Tabnine": 2,
+   "Sourcegraph Cody": 1
+  },
+  "issues_entity_ruler": {
+   "ChatGPT": 273,
+   "Claude": 244,
+   "Cursor": 154,
+   "GitHub Copilot": 134,
+   "Gemini": 49,
+   "Codeium": 43,
+   "Ollama": 34,
+   "Tabnine": 2,
+   "Sourcegraph Cody": 1
+  },
+  "issues_regex": {
+   "ChatGPT": 276,
+   "Claude": 250,
+   "GitHub Copilot": 134,
+   "Gemini": 50,
+   "Cursor": 44,
+   "Codeium": 43,
+   "Ollama": 37,
+   "Tabnine": 2,
+   "Sourcegraph Cody": 1
+  },
+  "rotulo_sem_regra": {
+   "Claude": {
+    "PERSON": 376,
+    "nenhum": 319,
+    "ORG": 63,
+    "LAW": 52,
+    "PRODUCT": 16,
+    "WORK_OF_ART": 15,
+    "FAC": 3,
+    "EVENT": 1
+   },
+   "Cursor": {
+    "nenhum": 411,
+    "ORG": 186,
+    "PRODUCT": 23,
+    "CARDINAL": 22,
+    "WORK_OF_ART": 6,
+    "PERSON": 5,
+    "LAW": 2,
+    "NORP": 2,
+    "EVENT": 1
+   },
+   "GitHub Copilot": {
+    "ORG": 274,
+    "nenhum": 172,
+    "PRODUCT": 2,
+    "PERSON": 2,
+    "FAC": 1,
+    "LAW": 1
+   },
+   "Gemini": {
+    "ORG": 44,
+    "nenhum": 30,
+    "FAC": 9,
+    "LOC": 7,
+    "GPE": 5,
+    "PERSON": 3,
+    "WORK_OF_ART": 3
+   },
+   "ChatGPT": {
+    "nenhum": 678,
+    "GPE": 99,
+    "ORG": 40,
+    "PERSON": 13,
+    "WORK_OF_ART": 8,
+    "FAC": 7,
+    "EVENT": 6,
+    "TIME": 3,
+    "NORP": 2,
+    "DATE": 2,
+    "CARDINAL": 1,
+    "PRODUCT": 1
+   },
+   "Codeium": {
+    "ORG": 61,
+    "nenhum": 14,
+    "PERSON": 11,
+    "GPE": 1,
+    "PRODUCT": 1
+   },
+   "Ollama": {
+    "nenhum": 64,
+    "ORG": 18,
+    "LOC": 11,
+    "DATE": 6,
+    "FAC": 3
+   },
+   "Sourcegraph Cody": {
+    "PERSON": 1
+   },
+   "Tabnine": {
+    "GPE": 1,
+    "nenhum": 1
+   }
+  }
+ },
+ "entidades_ner": {
+  "ORG": 20214,
+  "CARDINAL": 15470,
+  "PERSON": 6080,
+  "DATE": 2847,
+  "PRODUCT": 1883,
+  "GPE": 1142,
+  "ORDINAL": 1103,
+  "WORK_OF_ART": 845,
+  "TIME": 601,
+  "NORP": 522
+ }
+}

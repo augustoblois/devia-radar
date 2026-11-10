@@ -1,0 +1,551 @@
+{
+ "estatisticas": {
+  "issues": 979,
+  "frases_avaliadas": 34460,
+  "concordancia_pct": 49.7,
+  "kappa": 0.163,
+  "nota_media_vader": 0.05,
+  "nota_media_transformer": -0.066
+ },
+ "distribuicao": {
+  "vader_issue_inteira": {
+   "negativo": 299,
+   "neutro": 39,
+   "positivo": 641
+  },
+  "vader": {
+   "negativo": 8204,
+   "neutro": 14618,
+   "positivo": 11638
+  },
+  "transformer": {
+   "negativo": 4159,
+   "neutro": 29132,
+   "positivo": 1169
+  }
+ },
+ "matriz": {
+  "linhas_vader": [
+   "negativo",
+   "neutro",
+   "positivo"
+  ],
+  "colunas_transformer": [
+   "negativo",
+   "neutro",
+   "positivo"
+  ],
+  "contagens": [
+   [
+    2651,
+    5499,
+    54
+   ],
+   [
+    874,
+    13548,
+    196
+   ],
+   [
+    634,
+    10085,
+    919
+   ]
+  ]
+ },
+ "palavras_que_enganam": {
+  "positivo": [
+   {
+    "palavra": "commit",
+    "valencia": 1.2,
+    "frases": 568,
+    "discordou": 561,
+    "taxa": 0.988
+   },
+   {
+    "palavra": "acceptance",
+    "valencia": 2.0,
+    "frases": 516,
+    "discordou": 514,
+    "taxa": 0.996
+   },
+   {
+    "palavra": "authority",
+    "valencia": 0.3,
+    "frases": 429,
+    "discordou": 429,
+    "taxa": 1.0
+   },
+   {
+    "palavra": "accepted",
+    "valencia": 1.1,
+    "frases": 400,
+    "discordou": 399,
+    "taxa": 0.998
+   },
+   {
+    "palavra": "create",
+    "valencia": 1.1,
+    "frases": 352,
+    "discordou": 347,
+    "taxa": 0.986
+   },
+   {
+    "palavra": "value",
+    "valencia": 1.4,
+    "frases": 361,
+    "discordou": 338,
+    "taxa": 0.936
+   },
+   {
+    "palavra": "active",
+    "valencia": 1.7,
+    "frases": 341,
+    "discordou": 334,
+    "taxa": 0.979
+   },
+   {
+    "palavra": "support",
+    "valencia": 1.7,
+    "frases": 350,
+    "discordou": 327,
+    "taxa": 0.934
+   },
+   {
+    "palavra": "want",
+    "valencia": 0.3,
+    "frases": 325,
+    "discordou": 307,
+    "taxa": 0.945
+   },
+   {
+    "palavra": "kind",
+    "valencia": 2.4,
+    "frases": 307,
+    "discordou": 305,
+    "taxa": 0.993
+   },
+   {
+    "palavra": "approval",
+    "valencia": 2.1,
+    "frases": 289,
+    "discordou": 288,
+    "taxa": 0.997
+   },
+   {
+    "palavra": "like",
+    "valencia": 1.5,
+    "frases": 316,
+    "discordou": 281,
+    "taxa": 0.889
+   }
+  ],
+  "negativo": [
+   {
+    "palavra": "no",
+    "valencia": -1.2,
+    "frases": 2143,
+    "discordou": 1616,
+    "taxa": 0.754
+   },
+   {
+    "palavra": "problem",
+    "valencia": -1.7,
+    "frases": 425,
+    "discordou": 216,
+    "taxa": 0.508
+   },
+   {
+    "palavra": "failure",
+    "valencia": -2.3,
+    "frases": 517,
+    "discordou": 207,
+    "taxa": 0.4
+   },
+   {
+    "palavra": "error",
+    "valencia": -1.7,
+    "frases": 350,
+    "discordou": 191,
+    "taxa": 0.546
+   },
+   {
+    "palavra": "fail",
+    "valencia": -2.5,
+    "frases": 317,
+    "discordou": 158,
+    "taxa": 0.498
+   },
+   {
+    "palavra": "missing",
+    "valencia": -1.2,
+    "frases": 276,
+    "discordou": 146,
+    "taxa": 0.529
+   },
+   {
+    "palavra": "risk",
+    "valencia": -1.1,
+    "frases": 172,
+    "discordou": 132,
+    "taxa": 0.767
+   },
+   {
+    "palavra": "block",
+    "valencia": -1.9,
+    "frases": 155,
+    "discordou": 130,
+    "taxa": 0.839
+   },
+   {
+    "palavra": "blocks",
+    "valencia": -0.9,
+    "frases": 121,
+    "discordou": 107,
+    "taxa": 0.884
+   },
+   {
+    "palavra": "critical",
+    "valencia": -1.3,
+    "frases": 134,
+    "discordou": 103,
+    "taxa": 0.769
+   },
+   {
+    "palavra": "risks",
+    "valencia": -1.1,
+    "frases": 131,
+    "discordou": 97,
+    "taxa": 0.74
+   },
+   {
+    "palavra": "pay",
+    "valencia": -0.4,
+    "frases": 120,
+    "discordou": 94,
+    "taxa": 0.783
+   }
+  ]
+ },
+ "por_ferramenta": {
+  "GitHub Copilot": {
+   "frases": 302,
+   "vader": {
+    "negativo": 65,
+    "neutro": 111,
+    "positivo": 126
+   },
+   "transformer": {
+    "negativo": 33,
+    "neutro": 258,
+    "positivo": 11
+   },
+   "nota_vader": 0.121,
+   "nota_transformer": -0.025
+  },
+  "ChatGPT": {
+   "frases": 691,
+   "vader": {
+    "negativo": 184,
+    "neutro": 284,
+    "positivo": 223
+   },
+   "transformer": {
+    "negativo": 116,
+    "neutro": 536,
+    "positivo": 39
+   },
+   "nota_vader": 0.032,
+   "nota_transformer": -0.049
+  },
+  "Claude": {
+   "frases": 631,
+   "vader": {
+    "negativo": 153,
+    "neutro": 255,
+    "positivo": 223
+   },
+   "transformer": {
+    "negativo": 65,
+    "neutro": 556,
+    "positivo": 10
+   },
+   "nota_vader": 0.072,
+   "nota_transformer": -0.044
+  },
+  "Cursor": {
+   "frases": 485,
+   "vader": {
+    "negativo": 52,
+    "neutro": 220,
+    "positivo": 213
+   },
+   "transformer": {
+    "negativo": 44,
+    "neutro": 413,
+    "positivo": 28
+   },
+   "nota_vader": 0.167,
+   "nota_transformer": 0.021
+  },
+  "Gemini": {
+   "frases": 93,
+   "vader": {
+    "negativo": 17,
+    "neutro": 38,
+    "positivo": 38
+   },
+   "transformer": {
+    "negativo": 8,
+    "neutro": 81,
+    "positivo": 4
+   },
+   "nota_vader": 0.166,
+   "nota_transformer": 0.008
+  },
+  "Codeium": {
+   "frases": 74,
+   "vader": {
+    "negativo": 5,
+    "neutro": 34,
+    "positivo": 35
+   },
+   "transformer": {
+    "negativo": 2,
+    "neutro": 68,
+    "positivo": 4
+   },
+   "nota_vader": 0.22,
+   "nota_transformer": 0.092
+  },
+  "Ollama": {
+   "frases": 73,
+   "vader": {
+    "negativo": 8,
+    "neutro": 26,
+    "positivo": 39
+   },
+   "transformer": {
+    "negativo": 5,
+    "neutro": 63,
+    "positivo": 5
+   },
+   "nota_vader": 0.215,
+   "nota_transformer": 0.092
+  }
+ },
+ "por_tema": {
+  "0": {
+   "frases": 21448,
+   "vader": {
+    "negativo": 5640,
+    "neutro": 8875,
+    "positivo": 6933
+   },
+   "transformer": {
+    "negativo": 2696,
+    "neutro": 18488,
+    "positivo": 264
+   },
+   "nota_vader": 0.028,
+   "nota_transformer": -0.102
+  },
+  "1": {
+   "frases": 8092,
+   "vader": {
+    "negativo": 1390,
+    "neutro": 3487,
+    "positivo": 3215
+   },
+   "transformer": {
+    "negativo": 621,
+    "neutro": 6806,
+    "positivo": 665
+   },
+   "nota_vader": 0.116,
+   "nota_transformer": 0.043
+  },
+  "2": {
+   "frases": 3092,
+   "vader": {
+    "negativo": 843,
+    "neutro": 1345,
+    "positivo": 904
+   },
+   "transformer": {
+    "negativo": 602,
+    "neutro": 2336,
+    "positivo": 154
+   },
+   "nota_vader": 0.012,
+   "nota_transformer": -0.112
+  },
+  "3": {
+   "frases": 1828,
+   "vader": {
+    "negativo": 331,
+    "neutro": 911,
+    "positivo": 586
+   },
+   "transformer": {
+    "negativo": 240,
+    "neutro": 1502,
+    "positivo": 86
+   },
+   "nota_vader": 0.069,
+   "nota_transformer": -0.048
+  }
+ },
+ "exemplos": {
+  "vader_positivo_transformer_negativo": [
+   {
+    "texto": "I will never forgive LLMs for making my beloved em-dashes and semicolons not cool.",
+    "vader": 0.1341,
+    "neg": 0.935,
+    "neu": 0.058,
+    "pos": 0.006,
+    "issue": "Adopt a \"No-AI\" policy"
+   },
+   {
+    "texto": "EDIT 2: Honestly, this was more buggy than I thought, even as a basic starting point, but I can't delete the post.",
+    "vader": 0.25,
+    "neg": 0.931,
+    "neu": 0.064,
+    "pos": 0.005,
+    "issue": "Experimental plugin: preserve playlist scroll position after song removal (gener"
+   },
+   {
+    "texto": "They're not what makes Zed great, and frankly, the AI experience here is nowhere near the level of dedicated tools.",
+    "vader": 0.7964,
+    "neg": 0.911,
+    "neu": 0.078,
+    "pos": 0.011,
+    "issue": "Focus on the editor, not AI — we already have better tools for that"
+   },
+   {
+    "texto": "It has come to the point where any request or review code, help fix errors, or just general questions have become extremely slow.",
+    "vader": 0.0772,
+    "neg": 0.89,
+    "neu": 0.102,
+    "pos": 0.008,
+    "issue": "Github Copilot response time has slowed to painfully slow"
+   },
+   {
+    "texto": "Still, it should not be so easy to do it and I feel more people could be affected by that.",
+    "vader": 0.4838,
+    "neg": 0.88,
+    "neu": 0.114,
+    "pos": 0.006,
+    "issue": "Vite config loadEnv exposing all envs to frontend."
+   },
+   {
+    "texto": "2.0.0 I am pretty sure I'm not working Jsweet correctly.",
+    "vader": 0.6705,
+    "neg": 0.878,
+    "neu": 0.112,
+    "pos": 0.009,
+    "issue": "Trouble with jar file converting POJO to JS code"
+   }
+  ],
+  "vader_negativo_transformer_neutro": [
+   {
+    "texto": "TIER 2 the standing register From 3 of 7 answered 2026-09-03, these remain D8.",
+    "vader": -0.7125,
+    "neg": 0.007,
+    "neu": 0.956,
+    "pos": 0.037,
+    "issue": "Owner decision sheet D1–D72: one answerable place for #637 + #715 + #709 + #658 "
+   },
+   {
+    "texto": "Six sites: lines 78-80 fixture: the three old prefixes line 326 lines 360-361 two record paths The fixture's block (lines 60-68) must stay as-is: it mirrors the frozen extraction record.",
+    "vader": -0.4404,
+    "neg": 0.018,
+    "neu": 0.955,
+    "pos": 0.027,
+    "issue": "Adopt superpowers docs layout for specs, plans, and the peer-review archive"
+   },
+   {
+    "texto": "Event block Create 2 blocks an event block and an attach event block The event block would be a list of CC events you can attach to.",
+    "vader": -0.886,
+    "neg": 0.013,
+    "neu": 0.954,
+    "pos": 0.032,
+    "issue": "Event block"
+   },
+   {
+    "texto": "Repo moves beyond the first cut any others, or \"later\"?",
+    "vader": -0.2732,
+    "neg": 0.019,
+    "neu": 0.95,
+    "pos": 0.031,
+    "issue": "Owner decision sheet D1–D72: one answerable place for #637 + #715 + #709 + #658 "
+   },
+   {
+    "texto": "records Launchpad version, pack source, pack version/hash/ref, resolved profiles, generated files, timestamp, current/stale status, and detection warnings.",
+    "vader": -0.128,
+    "neg": 0.021,
+    "neu": 0.949,
+    "pos": 0.031,
+    "issue": "Standards Pack projection: .ai/launchpad layout, prepare manifest, and batch pre"
+   },
+   {
+    "texto": "The Data 14 Sessions, 511 Catches Session Date Catches Accuracy Critical Bugs Key Theme S273",
+    "vader": -0.3182,
+    "neg": 0.012,
+    "neu": 0.949,
+    "pos": 0.039,
+    "issue": "Bring Back /buddy: 511 Reasons Why"
+   }
+  ],
+  "queixa_invisivel_ao_vader": [
+   {
+    "texto": "Documented pileup-JSON path is unusable : isn't in at ; the name-table is also corrupted ( ).",
+    "vader": 0.0,
+    "neg": 0.935,
+    "neu": 0.06,
+    "pos": 0.005,
+    "issue": "Claude Fable review of coffea"
+   },
+   {
+    "texto": "That is wrong for this work in every respect.",
+    "vader": 0.0,
+    "neg": 0.927,
+    "neu": 0.066,
+    "pos": 0.007,
+    "issue": "Epic: Multi-lab LLM security review harness — periodic whole-repo sweep with rep"
+   },
+   {
+    "texto": "Medium bugs processor/ crashes every open ( read but not popped, then passed twice ; with every file is silently \"bad\").",
+    "vader": 0.0,
+    "neg": 0.921,
+    "neu": 0.074,
+    "pos": 0.006,
+    "issue": "Claude Fable review of coffea"
+   },
+   {
+    "texto": "I didn't run this code, and i expect it to not work.",
+    "vader": 0.0,
+    "neg": 0.919,
+    "neu": 0.075,
+    "pos": 0.007,
+    "issue": "Support for Orchestrating Agents: Routines and Handoffs like it was done in swar"
+   },
+   {
+    "texto": "clearstandardin hangs indefinitely on linux The ChatGPT generated code for clearing stdin does not work properly; the program hangs indefinitely.",
+    "vader": 0.0,
+    "neg": 0.907,
+    "neu": 0.087,
+    "pos": 0.006,
+    "issue": "clear_standard_in hangs indefinitely on linux"
+   },
+   {
+    "texto": "This code is absolutely deep fried, cooked, and operating entirely on LLM hallucination tech.",
+    "vader": 0.0,
+    "neg": 0.903,
+    "neu": 0.084,
+    "pos": 0.013,
+    "issue": "Poker module is cooked 💀"
+   }
+  ]
+ }
+}

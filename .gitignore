@@ -6,10 +6,13 @@ etapa*/apresentacao/arquivo-md-antigo/
 docs/pergunta-de-pesquisa.html
 ~$*
 
-# Etapas 2 e 3: mídia original (áudio e vídeo) e transcrição completa ficam
-# fora do GitHub, por tamanho e por direito autoral. O programa baixa e
-# transcreve de novo na primeira execução (opção 0 do menu).
+# Etapa 2: frases anotadas, vetores e classificação do transformer (cache de
+# ~80 MB, refeito pela opção 0 do menu). No Git ficam só os resultados.
 etapa2/dados/brutos/
+
+# Etapa 3: vídeo, áudio e transcrição completa das palestras ficam fora do
+# GitHub, por tamanho e por direito autoral. O programa baixa e transcreve de
+# novo na primeira execução (opção 0 do menu).
 etapa3/dados/brutos/
 
 # Python

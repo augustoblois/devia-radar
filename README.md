@@ -1,8 +1,9 @@
 # DevIA Radar
 
 Analisador de como desenvolvedores discutem **Inteligência Artificial no
-desenvolvimento de software**, em três formatos de dado não estruturado:
-texto, áudio e vídeo.
+desenvolvimento de software**, em três etapas de dado não estruturado: o texto
+de issues do GitHub, o significado desse mesmo texto e o áudio e o vídeo de
+palestras.
 
 Projeto da disciplina **Dados Não Estruturados** (UFPB), feito em dupla por
 **Augusto Blois** e **Pedro Flávio Nogueira Ribeiro de Luna**.
@@ -10,7 +11,7 @@ Tema 1 da lista de temas, dentro do grande tema de Engenharia de Software.
 
 **Pergunta de pesquisa:** como desenvolvedores discutem o uso de Inteligência
 Artificial no desenvolvimento de software? O que eles escrevem em issues
-confirma ou contradiz o que falam em podcasts e palestras?
+confirma ou contradiz o que falam em palestras?
 
 ---
 
@@ -19,31 +20,29 @@ confirma ou contradiz o que falam em podcasts e palestras?
 | Etapa | Formato | Fonte | Técnicas | Situação |
 |---|---|---|---|---|
 | [1](etapa1/) | Texto | 979 issues do GitHub (Search API) | Regex, spaCy, VADER | **pronta** |
-| [2](etapa2/) | Áudio | 14 episódios de podcast (iTunes Search API) | librosa, Whisper, regex, spaCy, VADER | **pronta** |
-| [3](etapa3/) | Vídeo | 8 palestras da FOSDEM (agenda em XML) | PyAV, OpenCV, RapidOCR, Whisper, regex, spaCy, VADER | **pronta** |
+| [2](etapa2/) | Texto: semântica e sentimento | as mesmas 979 issues | Pipeline do spaCy, embeddings (sentence-transformers), KMeans, transformer (RoBERTa) | **pronta** |
+| [3](etapa3/) | Áudio e vídeo | 8 palestras da FOSDEM (agenda em XML) | PyAV, OpenCV, librosa, RapidOCR, Whisper, regex, spaCy, VADER | **pronta** |
 
 O tema é o mesmo nas três etapas, como o enunciado sugere. A fonte de texto
 não precisa ser a mesma fonte de áudio e vídeo.
 
+O enunciado mudou depois da etapa 1: a etapa 2, que era de áudio (podcasts),
+passou a ser de análise semântica e de sentimentos, e o áudio foi para a
+etapa 3, junto com o vídeo. O trabalho antigo da etapa 2 está guardado na tag
+`arquivo/etapa2-audio`. O `docs/pergunta-de-pesquisa.pdf` é a primeira versão
+da pergunta, de setembro, de antes dessa mudança.
+
 ## O que as três etapas mostram
 
-As três etapas medem o sentimento do mesmo jeito (frase a frase, com o mesmo
-VADER) e contam as ferramentas com o mesmo dicionário:
+| Etapa | O que mede | Resultado principal |
+|---|---|---|
+| 1 · texto | VADER, issue inteira | 65% das issues positivas e 31% negativas. Claude (305 issues) e ChatGPT (302) são as ferramentas mais citadas. |
+| 2 · sentido | transformer, frase a frase | 85% das frases são neutras e, quando há tom, 78% é queixa. Parte do positivo da etapa 1 vinha de jargão: "commit" e "acceptance" são elogio para o VADER. |
+| 3 · áudio e vídeo | VADER frase a frase, voz e tela | 9% das frases faladas são negativas, contra 25% das escritas nas issues, com o mesmo medidor. A voz quase não acompanha o sentimento da frase. |
 
-| Etapa | Amostra | Positivas | Neutras | Negativas | Ferramenta mais citada |
-|---|---|---|---|---|---|
-| texto | 979 issues do GitHub | 34% | 41% | 25% | ChatGPT (30%) |
-| fala | 14 episódios de podcast, 10 h | 30% | 61% | 9% | Claude (41%) |
-| vídeo | 8 palestras da FOSDEM, 3,3 h | 25% | 66% | 9% | ChatGPT (51%) |
-
-A resposta à pergunta é "em parte as duas coisas":
-
-- **O tom muda com o lugar.** Um quarto das frases das issues é negativo,
-  contra 9% na fala dos podcasts e das palestras. Issue é onde se relata
-  defeito; podcast é conversa, e palestra é apresentação preparada.
-- **As ferramentas são as mesmas, em outra ordem.** O ChatGPT lidera no texto
-  e o Claude lidera na fala dos podcasts. No vídeo, a ordem segue o tema de
-  duas palestras (ver o [README da etapa 3](etapa3/README.md)).
+Juntando as três: o escrito reclama mais que o falado, e a medida muda o
+retrato. O mesmo texto que o VADER lia como 65% positivo, issue a issue, sai
+85% neutro no transformer, frase a frase.
 
 ---
 
@@ -54,15 +53,18 @@ git clone https://github.com/augustoblois/devia-radar.git
 cd devia-radar
 pip install -r requirements.txt
 python -m spacy download en_core_web_sm
+python -m spacy download en_core_web_md
 ```
 
-O download do modelo do spaCy é obrigatório. A biblioteca instala sem o
-modelo de idioma, que vem separado.
+O download dos modelos do spaCy é obrigatório. A biblioteca instala sem os
+modelos de idioma, que vêm separados: o `sm` serve às etapas 1 e 3, e o `md`,
+que traz vetores de palavra, à etapa 2.
 
-As etapas 2 e 3 baixam o áudio (670 MB) e o vídeo (715 MB) na primeira
-execução, e o Whisper baixa o modelo dele (cerca de 500 MB) na primeira
-transcrição. Com placa de vídeo NVIDIA, a transcrição fica bem mais rápida:
-o README da etapa 2 explica como ligar.
+A etapa 2 baixa dois modelos do Hugging Face na primeira execução (cerca de
+600 MB). A etapa 3 baixa o vídeo das palestras (715 MB), e o Whisper baixa o
+modelo dele (cerca de 500 MB) na primeira transcrição. Com placa de vídeo
+NVIDIA, a transcrição fica bem mais rápida: o README da etapa 3 explica como
+ligar.
 
 ## Execução
 
@@ -86,8 +88,8 @@ devia-radar/
 ├── docs/
 │   └── pergunta-de-pesquisa.pdf
 ├── etapa1/                texto: issues do GitHub
-├── etapa2/                áudio: podcasts
-├── etapa3/                vídeo: palestras da FOSDEM
+├── etapa2/                semântica e sentimento: as mesmas issues
+├── etapa3/                áudio e vídeo: palestras da FOSDEM
 └── atividades/            exercícios avulsos da disciplina (regex, Turing)
 ```
 

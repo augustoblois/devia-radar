@@ -1,24 +1,29 @@
 # DevIA Radar - Etapas 1, 2 e 3
 # Instalacao:
 #   pip install -r requirements.txt
-#   python -m spacy download en_core_web_sm
+#   python -m spacy download en_core_web_sm    (etapas 1 e 3)
+#   python -m spacy download en_core_web_md    (etapa 2: o mesmo pipeline, com vetores de palavra)
 
 # Etapa 1 (texto)
-requests>=2.32          # requisicoes HTTP (GitHub, iTunes, FOSDEM)
+requests>=2.32          # requisicoes HTTP (GitHub, FOSDEM)
 spacy>=3.8              # PLN: tokenizacao, lematizacao, POS, NER
 nltk>=3.9               # VADER, analise de sentimento por lexico
 matplotlib>=3.9         # graficos
 wordcloud>=1.9          # nuvem de palavras
 
-# Etapa 2 (audio)
-librosa>=1.0            # sinal: energia, pausas, espectrograma Mel, MFCC, altura da voz
-faster-whisper>=1.2     # transcricao com o Whisper
-scipy>=1.11             # correlacao de Spearman
+# Etapa 2 (semantica e sentimento)
+torch>=2.4              # roda as redes neurais, na CPU ou na placa NVIDIA. Testado na 2.15
+transformers>=5.0       # transformer de sentimento (RoBERTa) do Hugging Face. Testado na 5.22
+sentence-transformers>=5.0  # embeddings de frase (MiniLM). Testado na 6.2
+scikit-learn>=1.5       # KMeans, silhueta, t-SNE e kappa de Cohen
 
-# Etapa 3 (video)
+# Etapa 3 (audio e video)
 av>=14                  # PyAV: decodifica o video e o audio das palestras
 opencv-python>=4.10,<5  # imagem: diferenca entre quadros, Canny, rosto (YuNet). Testado na 4.13
 rapidocr-onnxruntime>=1.2  # OCR: le o texto dos slides
+faster-whisper>=1.2     # transcricao com o Whisper
+librosa>=1.0            # sinal: energia, pausas, espectrograma Mel, MFCC, altura da voz
+scipy>=1.11             # correlacao de Spearman
 
 # Opcional: transcricao na placa de video NVIDIA, no Windows. Sem estes
 # pacotes o programa usa a CPU sozinho.
