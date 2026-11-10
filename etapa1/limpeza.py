@@ -103,8 +103,8 @@ def _regex_de_vocabulario(termos: list[str]) -> re.Pattern[str]:
     Monta uma regex única a partir de uma lista de palavras.
 
     Ordenamos do termo mais longo para o mais curto porque a alternativa `|`
-    para na PRIMEIRA que casar. Sem isso, "copilot" casaria antes de
-    "github copilot" e a gente perderia o rótulo mais específico.
+    para na PRIMEIRA que casar. Quando um termo é o começo de outro, sem isso
+    "cursor" casaria antes de "cursor ai" e o termo mais longo nunca apareceria.
     """
     ordenados = sorted(termos, key=len, reverse=True)
     alternativas = "|".join(re.escape(t) if " " in t else t for t in ordenados)

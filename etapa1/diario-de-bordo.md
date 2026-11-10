@@ -92,15 +92,21 @@ fragmentos de código soltos no texto final. A correção foi remover o bloco de
 código primeiro, porque ele é o padrão mais externo.
 
 **Caso B, ordem das alternativas.** A regex de ferramentas usa `|`, que para
-na primeira alternativa que casa. Com `copilot|github copilot`, o texto
-"github copilot" era rotulado só como `copilot`, e o rótulo específico se
-perdia. A correção foi ordenar do termo mais longo para o mais curto:
+na primeira alternativa que casa. Quando um termo é o começo de outro, o mais
+curto ganha: no texto "Cursor AI is great", o padrão `cursor|cursor ai`
+devolve só "Cursor". A correção foi ordenar do termo mais longo para o mais
+curto:
 
 ```python
 ordenados = sorted(termos, key=len, reverse=True)
 ```
 
-**Lição.** Em regex, ordem é lógica, não estilo.
+*Corrigido em 2026-11-10:* a primeira versão desta entrada usava o par
+`copilot|github copilot`, que não dispara o problema: "copilot" não é o começo
+de "github copilot", e a regex acha "github copilot" inteiro nas duas ordens.
+O slide 4, apresentado em 2026-10-08, mantém o exemplo antigo.
+
+**Lição.** Em regex, a ordem das alternativas muda o resultado.
 
 ---
 
