@@ -42,7 +42,7 @@ de três modelos, que ficam guardados no computador depois da primeira vez:
 | `all-MiniLM-L6-v2` (sentence-transformers) | vetores de frase | ~90 MB | sozinho, na primeira opção 4, 5 ou 6 |
 | `twitter-roberta-base-sentiment-latest` (Cardiff NLP) | sentimento | ~500 MB | sozinho, na primeira opção 7 ou 8 |
 
-As partes lentas ficam em cache em `dados/brutos/` (fora do Git, ~80 MB).
+As partes lentas ficam em cache em `dados/brutos/` (fora do Git, 66 MB).
 Tempos medidos na CPU de um notebook, sem placa de vídeo:
 
 | Parte | Opção | Primeira vez | Com o cache |

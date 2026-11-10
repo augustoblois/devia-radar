@@ -198,25 +198,44 @@ versões.
 
 ---
 
-## 7. O transformer leva 46 minutos na CPU
+## 7. O transformer levou 64 minutos na CPU
 
 **O que aconteceu.** O primeiro teste do transformer de sentimento
-classificou 640 frases em 51 segundos: 13 frases por segundo. As 34.460
-frases do corpus levariam 46 minutos. Os vetores do MiniLM, mais leve, já
+classificou 640 frases sorteadas em 51 segundos: 13 frases por segundo.
+Pela conta, as 34.460 frases do corpus levariam 46 minutos. A execução
+completa levou 64 (3.840 segundos). Os vetores do MiniLM, mais leve, já
 tinham levado 837 segundos.
+
+**Diagnóstico.** A opção 8 mostra o progresso a cada 3.200 frases, e as
+frases vão em ordem de tamanho, da mais curta para a mais longa. O log mostra
+quanto pesa cada faixa:
+
+| Frases | Tempo |
+|---|---|
+| as 16.000 mais curtas (46%) | 7 minutos |
+| as 2.460 mais longas (7%) | 24 minutos |
+
+O tempo de uma frase cresce com o tamanho dela. E o computador rodava outros
+programas ao mesmo tempo, entre eles um teste de velocidade do próprio
+transformer. O log mostra a disputa pela CPU: o bloco de 16.000 a 19.200
+frases levou 321 segundos, mais que o seguinte, de frases mais longas (134
+segundos). A conta feita com 640 frases não previa nenhum dos dois efeitos.
 
 **Correção.** Três medidas, nenhuma muda o resultado:
 
 - as frases vão em lotes de 32, ordenadas por tamanho. Num lote, a frase
   curta é completada com enchimento até o tamanho da maior; com frases de
-  tamanho parecido no mesmo lote, quase não sobra enchimento;
+  tamanho parecido no mesmo lote, sobra pouco enchimento. Num teste com
+  1.280 frases sorteadas, a ordem por tamanho levou 130 segundos, e a ordem
+  original, 697, com o mesmo resultado;
 - o resultado fica em cache (`dados/brutos/`), e a opção 8 só recalcula com
   o `r` do menu;
-- a demonstração ao vivo (opção 7) roda uma frase de cada vez, em menos de
-  1 segundo.
+- a demonstração ao vivo (opção 7) classifica uma frase de cada vez: as
+  quatro frases de exemplo saem em 0,6 segundo.
 
 **Lição.** Modelo grande na CPU pede planejamento: rodar uma vez antes da
-apresentação e mostrar o cache.
+apresentação e mostrar o cache. E uma estimativa de tempo feita com amostra
+pequena, num computador ocupado, precisa de folga.
 
 ---
 

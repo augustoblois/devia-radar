@@ -44,7 +44,7 @@ DIR_SAIDA = RAIZ / "saida"
 ARQ_ETAPA1_CORPUS = RAIZ.parent / "etapa1" / "dados" / "processados" / "corpus_limpo.json"
 
 # Cache das partes lentas. Ficam fora do git pelo tamanho: as frases com o
-# texto ocupam ~10 MB e os vetores, ~50 MB. A opção 0 refaz tudo.
+# texto ocupam ~12 MB e os vetores, ~52 MB. A opção 0 refaz tudo.
 ARQ_FRASES = DIR_BRUTOS / "frases.json"
 ARQ_VETORES_FRASES = DIR_BRUTOS / "vetores_frases.npy"
 ARQ_VETORES_ISSUES = DIR_BRUTOS / "vetores_issues.npy"
